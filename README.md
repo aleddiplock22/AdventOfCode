@@ -1,10 +1,10 @@
 ## Years
 
-- 2019: Started in Rust
-- 2020: **Finished in Go**
-- 2021: Started in Go
-- 2022: Started in Python/Go Mixed
-- 2023: **Finished in Python**
+- 2019: Started in Rust _[8 Stars]_
+- 2020: **Finished in Go** _[47 Stars]_
+- 2021: Did a singular problem in Go _[2 Stars]_
+- 2022: Started in Python/Go Mixed, my first ever attempted year where I quit around day 12. _[24 stars]_
+- 2023: **Finished in Python**, first full year that I went to the 'end'. _[48 stars]_
 
 ## Languages
 
