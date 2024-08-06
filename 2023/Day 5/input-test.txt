@@ -1,0 +1,6 @@
+seeds: 1 2
+
+map x:
+0 0 0
+
+map
