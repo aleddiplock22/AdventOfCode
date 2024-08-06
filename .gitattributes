@@ -4,4 +4,4 @@
 *.json linguist-detectable=false
 *.toml linguist-detectable=false
 *.lock linguist-detectable=false
-target/* linguist-vendored
+target/* linguist-vendored=false
