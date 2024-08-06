@@ -4,6 +4,4 @@
 *.json linguist-detectable=false
 *.toml linguist-detectable=false
 *.lock linguist-detectable=false
-target/* linguist-detectable=false
-debug/* linguist-detectable=false
-makefile linguist-detectable=false
+target/* linguist-vendored
