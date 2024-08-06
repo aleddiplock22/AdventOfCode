@@ -1,0 +1,7 @@
+*.py linguist-detectable=true
+*.go linguist-detectable=true
+*.txt linguist-detectable=false
+*.json linguist-detectable=false
+*.toml linguist-detectable=false
+*.lock linguist-detectable=false
+*/debug/* linguist-detectable=false
