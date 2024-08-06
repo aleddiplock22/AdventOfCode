@@ -1,0 +1,10 @@
+C:\Users\adiplock\OneDrive - Capgemini\Documents\Misc\Misc. Practice\AdventOfCode\2019\day-1\target\debug\deps\libnum_complex-eec32777274c18e2.rmeta: C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\lib.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\cast.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\pow.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\complex_float.rs
+
+C:\Users\adiplock\OneDrive - Capgemini\Documents\Misc\Misc. Practice\AdventOfCode\2019\day-1\target\debug\deps\libnum_complex-eec32777274c18e2.rlib: C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\lib.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\cast.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\pow.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\complex_float.rs
+
+C:\Users\adiplock\OneDrive - Capgemini\Documents\Misc\Misc. Practice\AdventOfCode\2019\day-1\target\debug\deps\num_complex-eec32777274c18e2.d: C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\lib.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\cast.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\pow.rs C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\complex_float.rs
+
+C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\lib.rs:
+C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\cast.rs:
+C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\pow.rs:
+C:\Users\adiplock\.cargo\registry\src\index.crates.io-6f17d22bba15001f\num-complex-0.4.4\src\complex_float.rs:
