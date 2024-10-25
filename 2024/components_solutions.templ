@@ -1,0 +1,23 @@
+package main
+
+templ SolutionsPage(solutions []Solution) {
+    @Setup()
+    @NavBar("Solutions")
+
+    <div style="padding-left: 20">
+    <h1>Solutions!</h1>
+    for _, res := range solutions {
+        @DaySolution(res.day, res.part1, res.part2)
+    }
+    <h1>End of Solutions.</h1>
+    </div>
+}
+
+templ DaySolution(day string, part1 string, part2 string) {
+    <div>
+    <h3>Day { day } of AOC24</h3>
+    <p>Part 1: { part1 }</p>
+    <br/>
+    <p>Part 2: { part2 }</p>
+    </div>
+}

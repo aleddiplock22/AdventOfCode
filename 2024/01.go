@@ -2,11 +2,11 @@ package main
 
 import "fmt"
 
-func day01() Result {
+func day01() Solution {
 	fmt.Println("AOC 24 Day 1")
 	fmt.Println(GetInputPath(1))
 
-	return Result{
+	return Solution{
 		"01",
 		"Ans1",
 		"Ans2",

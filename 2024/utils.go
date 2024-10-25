@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type Result struct {
+type Solution struct {
 	day   string
 	part1 string
 	part2 string
@@ -18,22 +18,22 @@ func GetExamplePath(day int) string {
 	return fmt.Sprintf("./inputs/%v/example.txt", day)
 }
 
-func GetAllResults(day int) []Result {
-	results := []Result{}
+func GetAllSolutions(day int) []Solution {
+	solutions := []Solution{}
 	for range day {
 		day_str := strconv.Itoa(day)
 		if dayfunc, exists := dayMap[day_str]; exists {
-			results = append(results, dayfunc())
+			solutions = append(solutions, dayfunc())
 		} else {
 			panic(fmt.Sprintf("Day %v not in dayMap! Please update it!", day_str))
 		}
 	}
-	return results
+	return solutions
 }
 
-type ResultFuncType func() Result
+type SolutionFuncType func() Solution
 
-var dayMap = map[string]ResultFuncType{
+var dayMap = map[string]SolutionFuncType{
 	"1":  day01,
 	"2":  day02,
 	"3":  day03,
@@ -61,7 +61,7 @@ var dayMap = map[string]ResultFuncType{
 	"25": day25,
 }
 
-func SingleDayDevelopment(DayFunc ResultFuncType) {
+func SingleDayDevelopment(DayFunc SolutionFuncType) {
 	res := DayFunc()
 	fmt.Printf("Day %v\n\tPart 1: %v\n\tPart 2: %v\n", res.day, res.part1, res.part2)
 }

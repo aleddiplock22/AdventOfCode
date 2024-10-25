@@ -9,11 +9,11 @@ import (
 
 func WebApp() {
 	home_page := HomePage()
-	results_page := ResultsPage(GetAllResults(DAY))
+	solutions_page := SolutionsPage(GetAllSolutions(DAY))
 	stats_page := StatsPage()
 
 	http.Handle("/", templ.Handler(home_page))
-	http.Handle("/Results", templ.Handler(results_page))
+	http.Handle("/Solutions", templ.Handler(solutions_page))
 	http.Handle("/Stats", templ.Handler(stats_page))
 
 	fmt.Println("Running on http://localhost:3000")

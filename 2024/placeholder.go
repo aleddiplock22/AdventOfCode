@@ -4,72 +4,72 @@ package main
 Placeholder for the unimplemented go funcs
 */
 
-func day03() Result {
-	return Result{}
+func day03() Solution {
+	return Solution{}
 }
-func day04() Result {
-	return Result{}
+func day04() Solution {
+	return Solution{}
 }
-func day05() Result {
-	return Result{}
+func day05() Solution {
+	return Solution{}
 }
-func day06() Result {
-	return Result{}
+func day06() Solution {
+	return Solution{}
 }
-func day07() Result {
-	return Result{}
+func day07() Solution {
+	return Solution{}
 }
-func day08() Result {
-	return Result{}
+func day08() Solution {
+	return Solution{}
 }
-func day09() Result {
-	return Result{}
+func day09() Solution {
+	return Solution{}
 }
-func day10() Result {
-	return Result{}
+func day10() Solution {
+	return Solution{}
 }
-func day11() Result {
-	return Result{}
+func day11() Solution {
+	return Solution{}
 }
-func day12() Result {
-	return Result{}
+func day12() Solution {
+	return Solution{}
 }
-func day13() Result {
-	return Result{}
+func day13() Solution {
+	return Solution{}
 }
-func day14() Result {
-	return Result{}
+func day14() Solution {
+	return Solution{}
 }
-func day15() Result {
-	return Result{}
+func day15() Solution {
+	return Solution{}
 }
-func day16() Result {
-	return Result{}
+func day16() Solution {
+	return Solution{}
 }
-func day17() Result {
-	return Result{}
+func day17() Solution {
+	return Solution{}
 }
-func day18() Result {
-	return Result{}
+func day18() Solution {
+	return Solution{}
 }
-func day19() Result {
-	return Result{}
+func day19() Solution {
+	return Solution{}
 }
-func day20() Result {
-	return Result{}
+func day20() Solution {
+	return Solution{}
 }
-func day21() Result {
-	return Result{}
+func day21() Solution {
+	return Solution{}
 }
-func day22() Result {
-	return Result{}
+func day22() Solution {
+	return Solution{}
 }
-func day23() Result {
-	return Result{}
+func day23() Solution {
+	return Solution{}
 }
-func day24() Result {
-	return Result{}
+func day24() Solution {
+	return Solution{}
 }
-func day25() Result {
-	return Result{}
+func day25() Solution {
+	return Solution{}
 }

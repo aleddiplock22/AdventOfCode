@@ -6,11 +6,26 @@ templ HomePage() {
     @NavBar("Home")
 
     <body>
-        <div class={LeftPadding(), Blue()} style="padding-top: 60">
+        <div class={LeftPadding(), Blue()} style="font-family: monospace">
             <h1>DIPLA Advent Of Code Solutions WebApp 2024</h1>
-            @ResultsButton()
+            @HomePageContent()
         </div>
     </body>
+}
+
+templ HomePageContent() {
+    <ul class="list-unstyled">
+        <li>Link to the HI 2024 leaderboard <a href="https://adventofcode.com/2024/leaderboard/private/view/1000231">here</a>.</li>
+        <li>Link to my GitHub <a href="https://github.com/aleddiplock22">here</a>.</li>
+        <li>
+            Pages exlained...
+            <ul>
+                <li>Solutions is for running all solutions?</li>
+                <li>Stats is for getting stats on those solutions..?</li>
+            </ul>
+        </li>
+        <li>Not sure yet!</li>
+    </ul>
 }
 
 templ NavBar(page string) {
@@ -24,8 +39,8 @@ templ NavBar(page string) {
         <li class={ "nav-item", templ.KV("active", page=="Home") }>
             <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
-        <li class={ "nav-item", templ.KV("active", page=="Results") }>
-            <a class="nav-link" href="/Results">Results</a>
+        <li class={ "nav-item", templ.KV("active", page=="Solutions") }>
+            <a class="nav-link" href="/Solutions">Solutions</a>
         </li>
         <li class={ "nav-item", templ.KV("active", page=="Stats") }>
             <a class="nav-link" href="/Stats">Stats</a>
@@ -34,10 +49,6 @@ templ NavBar(page string) {
     </div>
     </nav>
     <div style="margin-bottom: 60"></div>
-}
-
-templ ResultsButton() {
-    <a href="/Results" class="btn btn-info" role="button">Go to Results Button</a>
 }
 
 templ Setup() {
