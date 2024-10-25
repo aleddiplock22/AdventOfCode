@@ -4,11 +4,13 @@ templ ResultsPage(results []Result) {
     @Setup()
     @NavBar("Results")
 
+    <div style="padding-left: 20">
     <h1>Results!</h1>
     for _, res := range results {
         @DayResult(res.day, res.part1, res.part2)
     }
     <h1>End of Results.</h1>
+    </div>
 }
 
 templ DayResult(day string, part1 string, part2 string) {
