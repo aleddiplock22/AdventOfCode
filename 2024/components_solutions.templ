@@ -9,6 +9,8 @@ templ SolutionsPage(solutions []Solution) {
     for _, res := range solutions {
         @DaySolution(res.day, res.part1, res.part2)
     }
+    <br/>
+    @SingleDaySolutionRun()
     <h1>End of Solutions.</h1>
     </div>
 }
@@ -20,4 +22,13 @@ templ DaySolution(day string, part1 string, part2 string) {
     <br/>
     <p>Part 2: { part2 }</p>
     </div>
+}
+
+templ SingleDaySolutionRun() {
+    <div class="input-group mb-3" style="width: 250">
+        <span class="input-group-text">Day</span>
+        <input type="number" class="form-control" aria-label="Which Day"></input>
+        <button id="run-solution-button" class="btn btn-outline-primary">Run Solution</button>
+    </div>
+    <div id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 }
