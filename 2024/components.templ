@@ -1,0 +1,36 @@
+package main
+
+
+templ HomePage() {
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <head>
+        <title>AOC24 Solver</title>
+        // <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    </head>
+    <body>
+        <h1>{ "ummm" }</h1>
+        <!-- Add HTMX functionality here -->
+        @Button()
+    </body>
+}
+
+templ ResultsPage(results []Result) {
+    <h1>Results!</h1>
+    for _, res := range results {
+        @DayResult(res.day, res.part1, res.part2)
+    }
+    <h1>End of Results.</h1>
+}
+
+templ DayResult(day string, part1 string, part2 string) {
+    <div>
+    <h3>Day { day } of AOC24</h3>
+    <p>Part 1: { part1 }</p>
+    <br/>
+    <p>Part 2: { part2 }</p>
+    </div>
+}
+
+templ Button() {
+    <a href="/Results" class="btn btn-info" role="button">Link Button</a>
+}
