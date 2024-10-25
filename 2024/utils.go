@@ -11,6 +11,13 @@ type Result struct {
 	part2 string
 }
 
+func GetInputPath(day int) string {
+	return fmt.Sprintf("./inputs/%v/input.txt", day)
+}
+func GetExamplePath(day int) string {
+	return fmt.Sprintf("./inputs/%v/example.txt", day)
+}
+
 func GetAllResults(day int) []Result {
 	results := []Result{}
 	for range day {
