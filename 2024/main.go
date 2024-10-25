@@ -1,27 +1,26 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"net/http"
-
-	"github.com/a-h/templ"
 )
 
+// UPDATE DAY HERE FOR WEB APP ALL_RESULTS
+const DAY = 2
+
 func main() {
-	component := HomePage()
+	day := flag.String("day", "NA", "Provide day number to run if quick mode")
+	flag.Parse()
 
-	results := []Result{day01(), day02()}
-	results_page := ResultsPage(results)
-
-	http.Handle("/", templ.Handler(component))
-	http.Handle("/Results", templ.Handler(results_page))
-
-	fmt.Println("Listening on :3000")
-	http.ListenAndServe(":3000", nil)
-}
-
-type Result struct {
-	day   string
-	part1 string
-	part2 string
+	if *day != "NA" {
+		// quick dev on the day
+		if dayFunc, exists := dayMap[*day]; exists {
+			SingleDayDevelopment(dayFunc)
+		} else {
+			panic(fmt.Sprintf("Didn't recognise day: \"%v\". Panic time!", *day))
+		}
+	} else {
+		// web app time :)
+		WebApp()
+	}
 }
