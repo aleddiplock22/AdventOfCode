@@ -4,7 +4,7 @@ import (
     "fmt"
 )
 
-templ SolutionsPage(solutions []Solution, progress int) {
+templ SolutionsPage(solutions []Solution) {
     @Setup()
     @NavBar("Solutions")
 
@@ -14,7 +14,7 @@ templ SolutionsPage(solutions []Solution, progress int) {
         @DaySolution(res.day, res.part1, res.part2)
     }
     <br/>
-    @SingleDaySolutionRun(progress)
+    @SingleDaySolutionRun()
     <h1>End of Solutions.</h1>
     </div>
 }
@@ -28,34 +28,47 @@ templ DaySolution(day string, part1 string, part2 string) {
     </div>
 }
 
-templ SingleDaySolutionRun(progress int) {
-    // Input to choose which solution to run + button
+templ SingleDaySolutionRun() {
+    // Input to choose which solution to run
     <div>
         <div class="input-group mb-3" style="width: 250">
             <span class="input-group-text">Day</span>
             <input type="number" class="form-control" aria-label="Which Day"></input>
+            // Button to trigger the run
             <button id="run-solution-button"
                     class="btn btn-outline-primary"
-                    hx-post="/increment"
+                    hx-post="/run-solution"
                     hx-target="#progress-container"
-                    hx-trigger="click, nextIncrement from:body"
                     hx-swap="innerHTML">  // hx-trigger above^ means triggered on click and also if it recieves a 'nextIncrement' from body
                 Run Solution
             </button>
         </div>
         
+        // Container for the progress bar
+        /* SSE Explainer:
+            It manages the connections to your web server, listens for server events, and then swaps their contents into your htmx webpage in real-time.
+        */
         <div id="progress-container">
-            @ProgressBar(progress)
+            @ProgressBar(0)
         </div>
-        // hx-post above means it will trigger a request to /increment , this will happen based on hx-trigger so when it loads and when it receives a 'nextIncrement' event.
+        
+        // SSE listener
+        <div id="update-container" 
+            hx-ext="sse" 
+            sse-connect="/sse-progress" 
+            sse-swap="message" 
+            hx-target="#progress-container" 
+            hx-swap="innerHTML">
+        </div>
+
     </div>
 
 }
 
 
 templ ProgressBar(progress int) {
-    <div style="width: 40%; background-color: #e0e0e0; border-radius: 5px;">
-        <div class={ "progress", ProgressionStyling(progress) } role="progressbar" style="height: 30px; background-color: #4CAF50; border-radius: 5px; text-align: center; line-height: 30px; color: white;">
+    <div class="progress-bar-container" style="width: 40%; background-color: #e0e0e0; border-radius: 5px;">
+        <div class={ "progress-bar", ProgressionStyling(progress) } role="progressbar" style="height: 30px; background-color: #4CAF50; border-radius: 5px; text-align: center; line-height: 30px; color: white;">
             { fmt.Sprintf("%d%%", progress) }
         </div>
     </div>
