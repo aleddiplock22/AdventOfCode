@@ -20,8 +20,8 @@ func GetExamplePath(day int) string {
 
 func GetAllSolutions(day int) []Solution {
 	solutions := []Solution{}
-	for range day {
-		day_str := strconv.Itoa(day)
+	for i := range day {
+		day_str := strconv.Itoa(i + 1)
 		if dayfunc, exists := dayMap[day_str]; exists {
 			solutions = append(solutions, dayfunc())
 		} else {
