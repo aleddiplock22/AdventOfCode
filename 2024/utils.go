@@ -5,10 +5,15 @@ import (
 	"strconv"
 )
 
+const P1_EXAMPLE = "P1_EXAMPLE"
+const P2_EXAMPLE = "P2_EXAMPLE"
+const P1_INPUT = "P1_INPUT"
+const P2_INPUT = "P2_INPUT"
+
 type Solution struct {
-	day   string
-	part1 string
-	part2 string
+	day         string
+	example_ans string
+	input_ans   string
 }
 
 func GetInputPath(day int) string {
@@ -18,12 +23,14 @@ func GetExamplePath(day int) string {
 	return fmt.Sprintf("./inputs/%v/example.txt", day)
 }
 
-func GetAllSolutions(day int) []Solution {
-	solutions := []Solution{}
+func GetAllSolutions(day int) [][2]Solution {
+	solutions := [][2]Solution{}
 	for i := range day {
 		day_str := strconv.Itoa(i + 1)
 		if dayfunc, exists := dayMap[day_str]; exists {
-			solutions = append(solutions, dayfunc())
+			solutions_p1 := dayfunc(false)
+			solutions_p2 := dayfunc(true)
+			solutions = append(solutions, [2]Solution{solutions_p1, solutions_p2})
 		} else {
 			panic(fmt.Sprintf("Day %v not in dayMap! Please update it!", day_str))
 		}
@@ -31,7 +38,7 @@ func GetAllSolutions(day int) []Solution {
 	return solutions
 }
 
-type SolutionFuncType func() Solution
+type SolutionFuncType func(bool) Solution
 
 var dayMap = map[string]SolutionFuncType{
 	"1":  day01,
@@ -62,6 +69,7 @@ var dayMap = map[string]SolutionFuncType{
 }
 
 func SingleDayDevelopment(DayFunc SolutionFuncType) {
-	res := DayFunc()
-	fmt.Printf("Day %v\n\tPart 1: %v\n\tPart 2: %v\n", res.day, res.part1, res.part2)
+	res_p1 := DayFunc(false)
+	res_p2 := DayFunc(true)
+	fmt.Printf("Day %v\n\tPart 1: %v\n\tPart 2: %v\n", res_p1.day, res_p1.input_ans, res_p2.input_ans)
 }

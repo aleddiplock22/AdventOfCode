@@ -1,12 +1,20 @@
 package main
 
-func day01() Solution {
+func day01(part2 bool) Solution {
 	// fmt.Println("AOC 24 Day 1")
 	// fmt.Println(GetInputPath(1))
 
-	return Solution{
-		"01",
-		"Ans1",
-		"Ans2",
+	if !part2 {
+		return Solution{
+			"01",
+			"ExampleP1",
+			"InputAnsP1",
+		}
+	} else {
+		return Solution{
+			"01",
+			"ExampleP2",
+			"InputAnsP2",
+		}
 	}
 }

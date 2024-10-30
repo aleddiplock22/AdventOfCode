@@ -4,14 +4,14 @@ import (
     "fmt"
 )
 
-templ SolutionsPage(solutions []Solution) {
+templ SolutionsPage(solutions [][2]Solution) {
     @Setup()
     @NavBar("Solutions")
 
     <div style="padding-left: 20">
     <h1>Solutions!</h1>
-    for _, res := range solutions {
-        @DaySolution(res.day, res.part1, res.part2)
+    for _, results := range solutions {
+        @DaySolution(results[0].day, results[0].input_ans, results[1].input_ans)
     }
     <br/>
     @SingleDaySolutionRun()

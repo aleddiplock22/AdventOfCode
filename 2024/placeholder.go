@@ -4,72 +4,72 @@ package main
 Placeholder for the unimplemented go funcs
 */
 
-func day03() Solution {
+func day03(part2 bool) Solution {
 	return Solution{}
 }
-func day04() Solution {
+func day04(part2 bool) Solution {
 	return Solution{}
 }
-func day05() Solution {
+func day05(part2 bool) Solution {
 	return Solution{}
 }
-func day06() Solution {
+func day06(part2 bool) Solution {
 	return Solution{}
 }
-func day07() Solution {
+func day07(part2 bool) Solution {
 	return Solution{}
 }
-func day08() Solution {
+func day08(part2 bool) Solution {
 	return Solution{}
 }
-func day09() Solution {
+func day09(part2 bool) Solution {
 	return Solution{}
 }
-func day10() Solution {
+func day10(part2 bool) Solution {
 	return Solution{}
 }
-func day11() Solution {
+func day11(part2 bool) Solution {
 	return Solution{}
 }
-func day12() Solution {
+func day12(part2 bool) Solution {
 	return Solution{}
 }
-func day13() Solution {
+func day13(part2 bool) Solution {
 	return Solution{}
 }
-func day14() Solution {
+func day14(part2 bool) Solution {
 	return Solution{}
 }
-func day15() Solution {
+func day15(part2 bool) Solution {
 	return Solution{}
 }
-func day16() Solution {
+func day16(part2 bool) Solution {
 	return Solution{}
 }
-func day17() Solution {
+func day17(part2 bool) Solution {
 	return Solution{}
 }
-func day18() Solution {
+func day18(part2 bool) Solution {
 	return Solution{}
 }
-func day19() Solution {
+func day19(part2 bool) Solution {
 	return Solution{}
 }
-func day20() Solution {
+func day20(part2 bool) Solution {
 	return Solution{}
 }
-func day21() Solution {
+func day21(part2 bool) Solution {
 	return Solution{}
 }
-func day22() Solution {
+func day22(part2 bool) Solution {
 	return Solution{}
 }
-func day23() Solution {
+func day23(part2 bool) Solution {
 	return Solution{}
 }
-func day24() Solution {
+func day24(part2 bool) Solution {
 	return Solution{}
 }
-func day25() Solution {
+func day25(part2 bool) Solution {
 	return Solution{}
 }
