@@ -48,7 +48,7 @@ templ SingleDaySolutionRun() {
                     class="btn btn-outline-primary"
                     hx-post="/run-solution"
                     hx-target="#progress-container"
-                    hx-swap="innerHTML">  // hx-trigger above^ means triggered on click and also if it recieves a 'nextIncrement' from body
+                    hx-swap="innerHTML">
                 Run Solution
             </button>
         </div>
@@ -70,6 +70,19 @@ templ SingleDaySolutionRun() {
             hx-swap="innerHTML">
         </div>
 
+    </div>
+
+    <div>
+        <button id="run-solution-button"
+                    class="btn btn-outline-primary"
+                    hx-post="/bar-chart"
+                    hx-target="#bar-chart-holder"
+                    hx-swap="innerHTML">
+                Bar Chart Button
+        </button>
+        <br>
+        <div id="bar-chart-holder"></div>
+        // style="border: 1px solid black; width: 500px; height: 300px"></div>
     </div>
 
 }

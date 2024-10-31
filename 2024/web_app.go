@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+	"github.com/wcharczuk/go-chart"
 )
 
 func WebApp() {
@@ -19,6 +20,7 @@ func WebApp() {
 	http.HandleFunc("/run-solution", runSolutionHandler)
 	http.HandleFunc("/sse-progress", sseHandler)
 	http.HandleFunc("/which-day", whichDayHandler)
+	http.HandleFunc("/bar-chart", barChartHandler)
 
 	http.Handle("/Stats", templ.Handler(stats_page))
 
@@ -37,6 +39,21 @@ func whichDayHandler(w http.ResponseWriter, r *http.Request) {
 			whichDayNumber = day_num
 		}
 		fmt.Printf("whichDayNumber set to: Day %v.\n", whichDayNumber)
+	}
+}
+
+func barChartHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		// So first when hx-post is triggered, we create the image element
+		html := `<img src="/bar-chart" width="500" height="300" style="border: 1px solid black;">`
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(html))
+	} else if r.Method == http.MethodGet {
+		// then the above triggers a GET when trying to find src="/bar-chart" I think
+		// and this renders to it
+		graph := buildBarGraph()
+		w.Header().Set("Content-Type", "image/png")
+		graph.Render(chart.PNG, w)
 	}
 }
 
