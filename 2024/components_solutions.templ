@@ -33,7 +33,16 @@ templ SingleDaySolutionRun() {
     <div>
         <div class="input-group mb-3" style="width: 250">
             <span class="input-group-text">Day</span>
-            <input type="number" class="form-control" aria-label="Which Day"></input>
+            <input type="number"
+                   min="1"
+                   max="25"
+                   value="1"
+                   name="whichDayText"
+                   class="form-control"
+                   aria-label="Which Day"
+                   hx-post="/which-day"
+                   hx-trigger="change">
+            </input>
             // Button to trigger the run
             <button id="run-solution-button"
                     class="btn btn-outline-primary"

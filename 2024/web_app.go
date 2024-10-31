@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/a-h/templ"
@@ -17,6 +18,7 @@ func WebApp() {
 	http.Handle("/Solutions", templ.Handler(solutions_page))
 	http.HandleFunc("/run-solution", runSolutionHandler)
 	http.HandleFunc("/sse-progress", sseHandler)
+	http.HandleFunc("/which-day", whichDayHandler)
 
 	http.Handle("/Stats", templ.Handler(stats_page))
 
@@ -24,22 +26,34 @@ func WebApp() {
 	http.ListenAndServe(":3000", nil)
 }
 
+var whichDayNumber int = 1
+
+func whichDayHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		inputNumber := r.FormValue("whichDayText")
+		if day_num, err := strconv.Atoi(inputNumber); err != nil {
+			panic("Unrecognised day number - not a number!")
+		} else {
+			whichDayNumber = day_num
+		}
+		fmt.Printf("whichDayNumber set to: Day %v.\n", whichDayNumber)
+	}
+}
+
 /*
 Progress handling explained...
 
-		When the "Run Solution" button is clicked, it sends a POST request to /run-solution.
-		The runSolutionHandler starts the solution process in a goroutine and renders the initial progress bar.
-		The <div> with hx-ext="sse" establishes a Server-Sent Events connection to /sse-progress.
-		The sseHandler sets up the SSE connection and listens for progress updates.
-		The runSolution function simulates a long-running process, updating the progress every second.
-		Progress updates are sent through a channel and then sent as SSE messages.
-		HTMX receives these SSE messages and updates the progress bar accordingly.
-
+	When the "Run Solution" button is clicked, it sends a POST request to /run-solution.
+	The runSolutionHandler starts the solution process in a goroutine and renders the initial progress bar.
+	The <div> with hx-ext="sse" establishes a Server-Sent Events connection to /sse-progress.
+	The sseHandler sets up the SSE connection and listens for progress updates.
+	The runSolution function simulates a long-running process, updating the progress every second.
+	Progress updates are sent through a channel and then sent as SSE messages.
+	HTMX receives these SSE messages and updates the progress bar accordingly.
 */
-
 func runSolutionHandler(w http.ResponseWriter, r *http.Request) {
 	// Start the solution process in a goroutine
-	go runSolution()
+	go runSolution(whichDayNumber)
 
 	// Render initial progress bar
 	ProgressBar(0).Render(r.Context(), w)
@@ -83,22 +97,30 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+
+	// back up for getting the bar to 100 if the polling got blocked and discarded the update...
+	ProgressBar(100).Render(r.Context(), w)
 }
 
-func runSolution() {
-	/*
-		TODO: update so this isn't a solution but actually has the AOC code running
+func wait(seconds int) {
+	time.Sleep(time.Duration(seconds) * time.Second)
+}
 
-		- I wonder if I can make it so we get to 25% for example p1, 50% full p1, 75% example p2, 100% full p2 ?
+func runSolution(day int) {
 
-	*/
+	DayFunc := dayMap[strconv.Itoa(day)]
+	wait(1)
+	updateProgress(10)
+	wait(2)
+	part1 := DayFunc(false)
+	updateProgress(50)
+	wait(2)
+	part2 := DayFunc(true)
+	updateProgress(100)
+	wait(1)
 
-	// Simulate a long-running process
-	for i := 0; i <= 10; i++ {
-		progress := i * 10
-		updateProgress(progress)
-		time.Sleep(1 * time.Second) // Simulate work being done
-	}
+	// do something with the results...
+	fmt.Println(part1.day, part2.day, "have run .,,,")
 }
 
 var progressUpdate = make(chan int, 1) // A buffered channel that can hold a single int value
