@@ -82,8 +82,6 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 	/*
 		What does this do?
 			- Sets up the SSE [Sever Sent Event]
-			- Creates a channel progressChan to recieve progress updates
-			- Starts 'listenForProgress' in a goroutine
 			- Loops, waiting for progress updates on progressChan
 			- For each update, it renders a new progress bar and sends it as an SSE message
 	*/
@@ -92,6 +90,7 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
+	// do we want to do something with headers to stop the request surviving too long..?
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -111,6 +110,8 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// we're Done
+	fmt.Println("rendering run solution output")
+	RunSolutionOutput().Render(r.Context(), w) // not working?
 }
 
 func runSolution(day int) {
