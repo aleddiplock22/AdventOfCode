@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
-	"github.com/wcharczuk/go-chart"
 )
 
 func WebApp() {
@@ -53,7 +52,7 @@ func barChartHandler(w http.ResponseWriter, r *http.Request) {
 		// and this renders to it
 		graph := buildBarGraph()
 		w.Header().Set("Content-Type", "image/png")
-		graph.Render(chart.PNG, w)
+		w.Write(graph)
 	}
 }
 
