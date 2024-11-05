@@ -63,17 +63,20 @@ Progress handling explained...
 	The runSolutionHandler starts the solution process in a goroutine and renders the initial progress bar.
 	The <div> with hx-ext="sse" establishes a Server-Sent Events connection to /sse-progress.
 	The sseHandler sets up the SSE connection and listens for progress updates.
-	The runSolution function simulates a long-running process, updating the progress every second.
+	The runSolution function acts as a long-running process, updating the progress as it comes through.
 	Progress updates are sent through a channel and then sent as SSE messages.
 	HTMX receives these SSE messages and updates the progress bar accordingly.
 */
 func runSolutionHandler(w http.ResponseWriter, r *http.Request) {
+	// Render initial progress bar
+	ProgressBar(10).Render(r.Context(), w) // initially render 10% prog to show started
+
 	// Start the solution process in a goroutine
 	go runSolution(whichDayNumber)
-
-	// Render initial progress bar
-	ProgressBar(0).Render(r.Context(), w)
 }
+
+// Create a channel to receive progress updates
+var progressUpdate = make(chan int, 10) // buffered channel with more than we need
 
 func sseHandler(w http.ResponseWriter, r *http.Request) {
 	/*
@@ -96,13 +99,7 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a channel to receive progress updates
-	progressChan := make(chan int)
-
-	// Start listening for progress updates
-	go listenForProgress(progressChan)
-
-	for progress := range progressChan {
+	for progress := range progressUpdate {
 		// Send SSE message
 		fmt.Fprintf(w, "data: ")
 		ProgressBar(progress).Render(r.Context(), w)
@@ -113,45 +110,22 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-
-	// back up for getting the bar to 100 if the polling got blocked and discarded the update...
-	ProgressBar(100).Render(r.Context(), w)
-}
-
-func wait(seconds int) {
-	time.Sleep(time.Duration(seconds) * time.Second)
+	// we're Done
 }
 
 func runSolution(day int) {
-
 	DayFunc := dayMap[strconv.Itoa(day)]
-	wait(1)
-	updateProgress(10)
-	wait(2)
+
 	part1 := DayFunc(false)
-	updateProgress(50)
-	wait(2)
+	progressUpdate <- 50 // send 50% progress update to the progressUpdate channel
+
 	part2 := DayFunc(true)
-	updateProgress(100)
-	wait(1)
+	progressUpdate <- 100 // send 100% progress update
 
 	// do something with the results...
 	fmt.Println(part1.day, part2.day, "have run .,,,")
 }
 
-var progressUpdate = make(chan int, 1) // A buffered channel that can hold a single int value
-
-func updateProgress(progress int) {
-	select {
-	case progressUpdate <- progress:
-	default:
-		// Channel is full, discard update (this avoids blocking)
-	}
-}
-
-func listenForProgress(progressChan chan<- int) {
-	// continuously reads from progressUpdate and sends the values to progressChan, which is connected to the SSE handler
-	for progress := range progressUpdate {
-		progressChan <- progress
-	}
+func wait(seconds int) {
+	time.Sleep(time.Duration(seconds) * time.Second)
 }

@@ -9,13 +9,8 @@ templ SolutionsPage(solutions [][2]Solution) {
     @NavBar("Solutions")
 
     <div style="padding-left: 20">
-    <h1>Solutions!</h1>
-    for _, results := range solutions {
-        @DaySolution(results[0].day, results[0].input_ans, results[1].input_ans)
-    }
-    <br/>
+    <h1 style="font-family: fantasy">Solutions!</h1>
     @SingleDaySolutionRun()
-    <h1>End of Solutions.</h1>
     </div>
 }
 
@@ -31,6 +26,8 @@ templ DaySolution(day string, part1 string, part2 string) {
 templ SingleDaySolutionRun() {
     // Input to choose which solution to run
     <div>
+        <h3>Run Solution For A Chosen Day</h3>
+        <p>Progress bar will run in line with solution.</p>
         <div class="input-group mb-3" style="width: 250">
             <span class="input-group-text">Day</span>
             <input type="number"
@@ -57,7 +54,7 @@ templ SingleDaySolutionRun() {
         /* SSE Explainer:
             It manages the connections to your web server, listens for server events, and then swaps their contents into your htmx webpage in real-time.
         */
-        <div id="progress-container">
+        <div id="progress-container" style="margin-top: 15; margin-bottom: 30">
             @ProgressBar(0)
         </div>
         
