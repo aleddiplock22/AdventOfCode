@@ -84,15 +84,21 @@ templ SingleDaySolutionRun() {
 
 }
 
-templ RunSolutionOutput() {
-    <p>uyesyesy</p>
-    @ProgressBar(99)
-    <div style="width: 100; height: 100">
-        <div>
+templ RunSolutionOutput(solution [2]Solution) {
+    @ProgressBar(100)
+    <div style="width: 300; height: 300">
         <h1>
-        SUMMARY
+            SUMMARY OF RESULTS:
         </h1>
-        </div>
+        <p style="font-family: monospace;">
+            Part 1:<br>
+            &#8194; Example: {  solution[0].example_ans  }<br>
+            &#8194; Answer: {  solution[0].input_ans  }<br>
+            <br>
+            Part 2:<br>
+            &#8194; Example: {  solution[1].example_ans  }<br>
+            &#8194; Answer: {  solution[1].input_ans  }<br>
+        </p>
     </div>
 }
 

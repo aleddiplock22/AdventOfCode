@@ -77,6 +77,7 @@ func runSolutionHandler(w http.ResponseWriter, r *http.Request) {
 
 // Create a channel to receive progress updates
 var progressUpdate = make(chan int, 10) // buffered channel with more than we need
+var outputChan = make(chan [2]Solution, 1)
 
 func sseHandler(w http.ResponseWriter, r *http.Request) {
 	/*
@@ -90,28 +91,24 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	// do we want to do something with headers to stop the request surviving too long..?
-
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
-		return
-	}
 
 	for progress := range progressUpdate {
 		// Send SSE message
+		// need to proceed any rendering with writing data: , then after it the newlines..!
 		fmt.Fprintf(w, "data: ")
 		ProgressBar(progress).Render(r.Context(), w)
 		fmt.Fprintf(w, "\n\n")
-		flusher.Flush()
-
 		if progress >= 100 {
 			break
 		}
 	}
-	// we're Done
-	fmt.Println("rendering run solution output")
-	RunSolutionOutput().Render(r.Context(), w) // not working?
+
+	// we're Done, let's grab the solution and render the summary:
+	var output [2]Solution = <-outputChan
+
+	fmt.Fprintf(w, "data: ")
+	RunSolutionOutput(output).Render(r.Context(), w)
+	fmt.Fprintf(w, "\n\n")
 }
 
 func runSolution(day int) {
@@ -123,8 +120,7 @@ func runSolution(day int) {
 	part2 := DayFunc(true)
 	progressUpdate <- 100 // send 100% progress update
 
-	// do something with the results...
-	fmt.Println(part1.day, part2.day, "have run .,,,")
+	outputChan <- [2]Solution{part1, part2}
 }
 
 func wait(seconds int) {
