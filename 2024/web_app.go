@@ -78,6 +78,7 @@ func runSolutionHandler(w http.ResponseWriter, r *http.Request) {
 // Create a channel to receive progress updates
 var progressUpdate = make(chan int, 10) // buffered channel with more than we need
 var outputChan = make(chan [2]Solution, 1)
+var outputTimeChan = make(chan int64, 1)
 
 func sseHandler(w http.ResponseWriter, r *http.Request) {
 	/*
@@ -105,22 +106,26 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 
 	// we're Done, let's grab the solution and render the summary:
 	var output [2]Solution = <-outputChan
+	var output_time = <-outputTimeChan
 
 	fmt.Fprintf(w, "data: ")
-	RunSolutionOutput(output).Render(r.Context(), w)
+	RunSolutionOutput(output, output_time).Render(r.Context(), w)
 	fmt.Fprintf(w, "\n\n")
 }
 
 func runSolution(day int) {
 	DayFunc := dayMap[strconv.Itoa(day)]
 
+	t1 := time.Now()
 	part1 := DayFunc(false)
 	progressUpdate <- 50 // send 50% progress update to the progressUpdate channel
 
 	part2 := DayFunc(true)
 	progressUpdate <- 100 // send 100% progress update
+	t2 := time.Now()
 
 	outputChan <- [2]Solution{part1, part2}
+	outputTimeChan <- t2.Sub(t1).Microseconds()
 }
 
 func wait(seconds int) {
