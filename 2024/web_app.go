@@ -128,6 +128,6 @@ func runSolution(day int) {
 	outputTimeChan <- t2.Sub(t1).Microseconds()
 }
 
-func wait(seconds int) {
-	time.Sleep(time.Duration(seconds) * time.Second)
-}
+// func wait(seconds int) {
+// 	time.Sleep(time.Duration(seconds) * time.Second)
+// }
