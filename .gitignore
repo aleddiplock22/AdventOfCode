@@ -1,3 +1,5 @@
 *.txt
-*.mod
+go.mod
 *.json
+go.sum
+*_templ*

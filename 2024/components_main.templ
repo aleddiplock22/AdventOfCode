@@ -1,0 +1,61 @@
+package main
+
+
+templ HomePage() {
+    @Setup()    
+    @NavBar("Home")
+
+    <body>
+        <div class={LeftPadding(), Blue()} style="font-family: monospace">
+            <h1>DIPLA Advent Of Code Solutions WebApp 2024</h1>
+            @HomePageContent()
+        </div>
+    </body>
+}
+
+templ HomePageContent() {
+    <ul class="list-unstyled">
+        <li>Link to the HI 2024 leaderboard <a href="https://adventofcode.com/2024/leaderboard/private/view/1000231">here</a>.</li>
+        <li>Link to my GitHub <a href="https://github.com/aleddiplock22">here</a>.</li>
+        <li>
+            Pages exlained...
+            <ul>
+                <li>Solutions is for running all solutions?</li>
+                <li>Stats is for getting stats on those solutions..?</li>
+            </ul>
+        </li>
+        <li>Not sure yet!</li>
+    </ul>
+}
+
+templ NavBar(page string) {
+    <nav class={ "navbar navbar-expand-lg navbar-light bg-light",  NavBarStyling() }>
+    <a class="navbar-brand" href="https://adventofcode.com/">AOC</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+        <li class={ "nav-item", templ.KV("active", page=="Home") }>
+            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class={ "nav-item", templ.KV("active", page=="Solutions") }>
+            <a class="nav-link" href="/Solutions">Solutions</a>
+        </li>
+        <li class={ "nav-item", templ.KV("active", page=="Stats") }>
+            <a class="nav-link" href="/Stats">Stats</a>
+        </li>
+        </ul>
+    </div>
+    </nav>
+    <div style="margin-bottom: 60"></div>
+}
+
+templ Setup() {
+    <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
+    <title>AOC24 Solver</title>
+    </head>
+}

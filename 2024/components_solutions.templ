@@ -1,0 +1,117 @@
+package main
+
+import (
+    "fmt"
+)
+
+templ SolutionsPage(solutions [][2]Solution) {
+    @Setup()
+    @NavBar("Solutions")
+
+    <div style="padding-left: 20">
+    <h1 style="font-family: fantasy">Solutions!</h1>
+    @SingleDaySolutionRun()
+    </div>
+}
+
+templ DaySolution(day string, part1 string, part2 string) {
+    <div>
+    <h3>Day { day } of AOC24</h3>
+    <p>Part 1: { part1 }</p>
+    <br/>
+    <p>Part 2: { part2 }</p>
+    </div>
+}
+
+templ SingleDaySolutionRun() {
+    // Input to choose which solution to run
+    <div>
+        <h3>Run Solution For A Chosen Day</h3>
+        <p>Progress bar will run in line with solution.</p>
+        <div class="input-group mb-3" style="width: 250">
+            <span class="input-group-text">Day</span>
+            <input type="number"
+                   min="1"
+                   max="25"
+                   value="1"
+                   name="whichDayText"
+                   class="form-control"
+                   aria-label="Which Day"
+                   hx-post="/which-day"
+                   hx-trigger="change">
+            </input>
+            // Button to trigger the run
+            <button id="run-solution-button"
+                    class="btn btn-outline-primary"
+                    hx-post="/run-solution"
+                    hx-target="#progress-container"
+                    hx-swap="innerHTML">
+                Run Solution
+            </button>
+        </div>
+        
+        // Container for the progress bar
+        /* SSE Explainer:
+            It manages the connections to your web server, listens for server events, and then swaps their contents into your htmx webpage in real-time.
+        */
+        <div id="progress-container" style="margin-top: 15; margin-bottom: 30">
+            @ProgressBar(0)
+        </div>
+        
+        // SSE listener
+        <div id="update-container" 
+            hx-ext="sse" 
+            sse-connect="/sse-progress" 
+            sse-swap="message" 
+            hx-target="#progress-container" 
+            hx-swap="innerHTML">
+        </div>
+
+    </div>
+
+    <div>
+        <button id="run-solution-button"
+                    class="btn btn-outline-primary"
+                    hx-post="/bar-chart"
+                    hx-target="#bar-chart-holder"
+                    hx-swap="innerHTML">
+                Bar Chart Button
+        </button>
+        <br>
+        <div id="bar-chart-holder"></div>
+        // style="border: 1px solid black; width: 500px; height: 300px"></div>
+    </div>
+
+}
+
+templ RunSolutionOutput(solution [2]Solution, execution_time int64) {
+    @ProgressBar(100)
+    <div style="width: 300; height: 300">
+        <h1>
+            SUMMARY OF RESULTS:
+        </h1>
+        <p style="font-family: monospace;">
+            Part 1:<br>
+            &#8194; Example: {  solution[0].example_ans  }<br>
+            &#8194; Answer: {  solution[0].input_ans  }<br>
+            <br>
+            Part 2:<br>
+            &#8194; Example: {  solution[1].example_ans  }<br>
+            &#8194; Answer: {  solution[1].input_ans  }<br>
+            <br>
+            Total Execution Time: { fmt.Sprintf("%v\u03BCs", execution_time) } 
+        </p>
+    </div>
+}
+
+templ ProgressBar(progress int) {
+    <div class="progress-bar-container" style="width: 40%; background-color: #e0e0e0; border-radius: 5px;">
+        <div class={ "progress-bar", ProgressionStyling(progress) } role="progressbar" style="height: 30px; background-color: #4CAF50; border-radius: 5px; text-align: center; line-height: 30px; color: white;">
+            { fmt.Sprintf("%d%%", progress) }
+        </div>
+    </div>
+}
+
+css ProgressionStyling(progress int) {
+    width: { templ.SafeCSS(fmt.Sprintf("%v%%", progress)) };
+}
