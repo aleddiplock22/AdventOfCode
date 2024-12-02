@@ -125,7 +125,7 @@ func runSolution(day int) {
 	t2 := time.Now()
 
 	outputChan <- [2]Solution{part1, part2}
-	outputTimeChan <- t2.Sub(t1).Microseconds()
+	outputTimeChan <- t2.Sub(t1).Milliseconds()
 }
 
 // func wait(seconds int) {

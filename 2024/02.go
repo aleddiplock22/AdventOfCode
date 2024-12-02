@@ -4,11 +4,36 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
 
 func day02(part2 bool) Solution {
+	// trying some fun calling python to get the answer from fun dodgy one liners
+	cmd := exec.Command("python", "./python_solutions/day2.py")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		panic("Failed running Python day2.py script!")
+	}
+	parts := strings.Split(string(output), ",")
+	p1, p2 := parts[0], parts[1]
+	if !part2 {
+		return Solution{
+			"02",
+			"4",
+			p1,
+		}
+	} else {
+		return Solution{
+			"02",
+			"5",
+			p2,
+		}
+	}
+
+	// below is my actual Go implementation etc. etc.
+
 	part1_example := Part1(GetExamplePath(2))
 	AssertExample("2", part1_example, 1)
 
