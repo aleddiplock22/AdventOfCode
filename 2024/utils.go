@@ -73,3 +73,9 @@ func SingleDayDevelopment(DayFunc SolutionFuncType) {
 	res_p2 := DayFunc(true)
 	fmt.Printf("Day %v\n\tPart 1: %v\n\tPart 2: %v\n", res_p1.day, res_p1.input_ans, res_p2.input_ans)
 }
+
+func AssertExample(expected string, result string, part int) {
+	if expected != result {
+		panic(fmt.Sprintf("Failed example p%v. Expected: %v, Got: %v\n", part, expected, result))
+	}
+}
