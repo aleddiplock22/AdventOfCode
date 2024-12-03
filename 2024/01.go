@@ -14,13 +14,13 @@ func day01(part2 bool) Solution {
 	example_path := GetExamplePath(1)
 	input_path := GetInputPath(1)
 
-	example_input := readInput(example_path)
+	example_input := readInput_01(example_path)
 	example_p1 := SolveP1(example_input)
 	if example_p1 != 11 {
 		panic("P1 Example wrong!")
 	}
 
-	input := readInput(input_path)
+	input := readInput_01(input_path)
 	p1 := SolveP1(input)
 
 	if !part2 {
@@ -38,7 +38,7 @@ func day01(part2 bool) Solution {
 	}
 }
 
-func readInput(filepath string) [2][]int {
+func readInput_01(filepath string) [2][]int {
 	file, _ := os.Open(filepath)
 	defer file.Close()
 	scanner := bufio.NewScanner(file)

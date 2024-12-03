@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -69,13 +70,30 @@ var dayMap = map[string]SolutionFuncType{
 }
 
 func SingleDayDevelopment(DayFunc SolutionFuncType) {
+	RED_FORE := "\x1b[31m"
+	BOLD := "\x1b[1m"
+	GREEN_FORE := "\x1b[32m"
+	RESET := "\x1b[39m"
+	RESET_STYLE := "\x1b[0m"
 	res_p1 := DayFunc(false)
 	res_p2 := DayFunc(true)
-	fmt.Printf("Day %v\n\tPart 1: %v\n\tPart 2: %v\n", res_p1.day, res_p1.input_ans, res_p2.input_ans)
+	fmt.Println(BOLD, RED_FORE, "---------------------------------", RESET)
+	fmt.Println(GREEN_FORE, "  🎅🎄❄️  AOC 2024 - Day", res_p1.day, "❄️ 🎄🎅", RESET)
+	fmt.Println(RED_FORE, " ---------------------------------", RESET)
+	fmt.Printf("%v%vPart 1:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%vPart 2:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%v%v", GREEN_FORE, BOLD, RED_FORE, GREEN_FORE, res_p1.example_ans, RED_FORE, GREEN_FORE, res_p1.input_ans, GREEN_FORE, RED_FORE, GREEN_FORE, res_p2.example_ans, RED_FORE, GREEN_FORE, res_p2.input_ans, RESET, RESET_STYLE)
 }
 
 func AssertExample(expected string, result string, part int) {
 	if expected != result {
 		panic(fmt.Sprintf("Failed example p%v. Expected: %v, Got: %v\n", part, expected, result))
 	}
+}
+
+func readInput(filepath string) string {
+	file, err := os.ReadFile(filepath)
+	if err != nil {
+		panic("ERROR READING FILE!")
+	}
+	file_content := string(file)
+	return file_content
 }

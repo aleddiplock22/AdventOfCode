@@ -4,58 +4,59 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 )
 
 func day02(part2 bool) Solution {
 	// trying some fun calling python to get the answer from fun dodgy one liners
-	cmd := exec.Command("python", "./python_solutions/day2.py")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		panic("Failed running Python day2.py script!")
-	}
-	parts := strings.Split(string(output), ",")
-	p1, p2 := parts[0], parts[1]
-	if !part2 {
-		return Solution{
-			"02",
-			"4",
-			p1,
+	/*
+		cmd := exec.Command("python", "./python_solutions/day2.py")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			panic("Failed running Python day2.py script!")
 		}
-	} else {
-		return Solution{
-			"02",
-			"5",
-			p2,
+		parts := strings.Split(string(output), ",")
+		p1, p2 := parts[0], parts[1]
+		if !Part2_02 {
+			return Solution{
+				"02",
+				"4",
+				p1,
+			}
+		} else {
+			return Solution{
+				"02",
+				"5",
+				p2,
+			}
 		}
-	}
+	*/
 
 	// below is my actual Go implementation etc. etc.
 
-	part1_example := Part1(GetExamplePath(2))
-	AssertExample("2", part1_example, 1)
+	part1_example_02 := Part1_02(GetExamplePath(2))
+	AssertExample("2", part1_example_02, 1)
 
-	part2_example := Part2(GetExamplePath(2))
-	AssertExample("4", part2_example, 2)
+	Part2_example := Part2_02(GetExamplePath(2))
+	AssertExample("4", Part2_example, 2)
 
 	if !part2 {
 		return Solution{
 			"02",
-			part1_example,
-			Part1(GetInputPath(2)),
+			part1_example_02,
+			Part1_02(GetInputPath(2)),
 		}
 	} else {
 		return Solution{
 			"02",
-			part2_example,
-			Part2(GetInputPath(2)),
+			Part2_example,
+			Part2_02(GetInputPath(2)),
 		}
 	}
 }
 
-func parseInput(filepath string) (reports [][]int) {
+func parseInput_02(filepath string) (reports [][]int) {
 	file, _ := os.Open(filepath)
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
@@ -78,12 +79,12 @@ func parseInput(filepath string) (reports [][]int) {
 	return reports
 }
 
-func Part1(filepath string) string {
-	return Solve(filepath, false)
+func Part1_02(filepath string) string {
+	return Solve_02(filepath, false)
 }
 
-func Part2(filepath string) string {
-	return Solve(filepath, true)
+func Part2_02(filepath string) string {
+	return Solve_02(filepath, true)
 }
 
 func CheckNums(nums []int) bool {
@@ -128,8 +129,8 @@ func getCombos(nums []int) [][]int {
 	return combos
 }
 
-func Solve(filepath string, second_chance bool) string {
-	input := parseInput(filepath)
+func Solve_02(filepath string, second_chance bool) string {
+	input := parseInput_02(filepath)
 
 	var total_safe int
 	for _, nums := range input {
