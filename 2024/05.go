@@ -3,33 +3,36 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 func day05(part2 bool) Solution {
+	example_path := GetExamplePath(5)
+	input := GetInputPath(5)
 	if !part2 {
-		example_p1 := Part1_05(GetExamplePath(5))
-
+		example_p1 := Part1_05(example_path)
+		AssertExample("143", example_p1, 1)
 		return Solution{
 			"05",
 			example_p1,
-			"input part 1",
+			Part1_05(input),
 		}
 	} else {
+		example_p2 := Part2_05(example_path)
+		AssertExample("123", example_p2, 2)
 		return Solution{
 			"05",
-			"example part 2",
-			"input part 2",
+			example_p2,
+			Part2_05(input),
 		}
 	}
 }
 
 type Day5 struct {
-	ordering     map[int][]int // map[Y]={a,b,c} -> Y must be before any of a,b,c
-	rev_ordering map[int][]int // map[X]={d,e,f} -> X must be after any of d,e,f
-	sequences    [][]int
+	ordering  map[int][]int // map[Y]={a,b,c} -> Y must be before any of a,b,c
+	sequences [][]int
 }
 
 func readInput_05(filepath string) Day5 {
@@ -38,7 +41,6 @@ func readInput_05(filepath string) Day5 {
 	parts := strings.Split(file_content, "\r\n\r\n")
 
 	mapping := map[int][]int{}
-	rev_mapping := map[int][]int{}
 	p1 := strings.Split(parts[0], "\r\n")
 	for _, mapping_str := range p1 {
 		lr := strings.Split(mapping_str, "|")
@@ -50,12 +52,6 @@ func readInput_05(filepath string) Day5 {
 			mapping[R] = befores
 		} else {
 			mapping[R] = []int{L}
-		}
-		if afters, ok := rev_mapping[L]; ok {
-			afters = append(afters, R)
-			rev_mapping[L] = afters
-		} else {
-			rev_mapping[L] = []int{R}
 		}
 	}
 
@@ -71,14 +67,47 @@ func readInput_05(filepath string) Day5 {
 		sequences = append(sequences, seq)
 	}
 
-	return Day5{mapping, rev_mapping, sequences}
+	return Day5{mapping, sequences}
 }
 
 func getMedian(seq []int) int {
 	if len(seq)%2 == 0 {
 		panic("assumed uneven seq length")
 	}
-	return seq[(len(seq)/2)+1]
+	return seq[(len(seq) / 2)]
+}
+
+func isSortedSafetyManual(seq []int, ordering map[int][]int) bool {
+	// is this like O(n!) lol
+	for i, val := range seq {
+		if befores, exist := ordering[val]; exist {
+			for _, before := range befores {
+				if slices.Contains(seq[i:], before) {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
+func sortedSafetyManual(seq []int, ordering map[int][]int) []int {
+	// doc: This sort is not guaranteed to be stable. cmp(a, b) should return a negative number when a < b, a positive number when a > b and zero when a == b.
+	slices.SortStableFunc(seq, func(a int, b int) int {
+		befores, exist := ordering[a]
+		if !exist {
+			// no comparison
+			return 0
+		}
+		for _, before := range befores {
+			if b == before {
+				// b was in a's befores, thus a > b
+				return 1
+			}
+		}
+		return -1
+	})
+	return seq
 }
 
 func Part1_05(filepath string) string {
@@ -86,28 +115,24 @@ func Part1_05(filepath string) string {
 
 	var total int
 	for _, sequence := range input.sequences {
-		if sort.SliceIsSorted(sequence, func(i, j int) bool {
-			if befores, exists := input.ordering[sequence[i]]; exists {
-				for _, val := range befores {
-					if sequence[j] == val {
-						return true
-					}
-				}
-			} else if afters, ok := input.rev_ordering[sequence[j]]; ok {
-				for _, val := range afters {
-					if sequence[j] == val {
-						return false
-					}
-				}
-			}
-			return true
-		}) {
-			// slice was sorted in our sense of it
+		if isSortedSafetyManual(sequence, input.ordering) {
 			total += getMedian(sequence)
-		} else {
-			fmt.Printf("Seq: %v, was not sorted\n", sequence)
 		}
 	}
 
+	return fmt.Sprintf("%v", total)
+}
+
+func Part2_05(filepath string) string {
+	input := readInput_05(filepath)
+
+	var total int
+	for _, sequence := range input.sequences {
+		if !isSortedSafetyManual(sequence, input.ordering) {
+			// now we have to sort it
+			sorted_seq := sortedSafetyManual(sequence, input.ordering)
+			total += getMedian(sorted_seq)
+		}
+	}
 	return fmt.Sprintf("%v", total)
 }
