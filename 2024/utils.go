@@ -1,15 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const P1_EXAMPLE = "P1_EXAMPLE"
 const P2_EXAMPLE = "P2_EXAMPLE"
 const P1_INPUT = "P1_INPUT"
 const P2_INPUT = "P2_INPUT"
+
+const RED_FORE = "\x1b[31m"
+const BOLD = "\x1b[1m"
+const GREEN_FORE = "\x1b[32m"
+const RESET = "\x1b[39m"
+const RESET_STYLE = "\x1b[0m"
 
 type Solution struct {
 	day         string
@@ -70,11 +78,6 @@ var dayMap = map[string]SolutionFuncType{
 }
 
 func SingleDayDevelopment(DayFunc SolutionFuncType) {
-	RED_FORE := "\x1b[31m"
-	BOLD := "\x1b[1m"
-	GREEN_FORE := "\x1b[32m"
-	RESET := "\x1b[39m"
-	RESET_STYLE := "\x1b[0m"
 	res_p1 := DayFunc(false)
 	res_p2 := DayFunc(true)
 	fmt.Println(BOLD, RED_FORE, "---------------------------------", RESET)
@@ -90,10 +93,26 @@ func AssertExample(expected string, result string, part int) {
 }
 
 func readInput(filepath string) string {
+	// Get full file as string
 	file, err := os.ReadFile(filepath)
 	if err != nil {
 		panic("ERROR READING FILE!")
 	}
 	file_content := string(file)
 	return file_content
+}
+
+// might move this function to utils.go
+func readStringGrid(filepath string) [][]string {
+	// Get grid input as an grid[col][row] of strings
+	file, _ := os.Open(filepath)
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	grid := [][]string{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		chars := strings.Split(line, "")
+		grid = append(grid, chars)
+	}
+	return grid
 }
