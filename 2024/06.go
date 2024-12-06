@@ -265,12 +265,13 @@ func doesP1SimulationGetLoop(grid *[][]string, starting_pos *[2]int, obstacle_po
 		next = getNextMove6_p2(current_pos, grid, obstacle_pos)
 		c, r := next[0], next[1]
 		if c < 0 || c >= len((*grid)) || r < 0 || r >= len((*grid)[0]) {
-			return true
+			panic("how are we out of bounds rn...")
 		}
 		if (*grid)[c][r] == HASHTAG || [2]int{c, r} == *obstacle_pos {
 			panic("Unexpected obstacle")
 		}
 
+		// been here before facing same direction?
 		if _, exists := seen[next]; exists {
 			return true
 		}
