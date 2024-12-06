@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
 )
 
 // UPDATE DAY HERE FOR WEB APP ALL_RESULTS
@@ -17,7 +18,8 @@ func main() {
 		// quick dev on the day
 		if dayFunc, exists := dayMap[*day]; exists {
 			if *bench {
-				RunBenchmarking(dayFunc)
+				d, _ := strconv.Atoi(*day)
+				RunBenchmarking(d, dayFunc)
 			} else {
 				SingleDayDevelopment(dayFunc)
 			}

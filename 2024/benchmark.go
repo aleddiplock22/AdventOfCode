@@ -5,19 +5,24 @@ import (
 	"testing"
 )
 
-/*
-	TODO: improve benchmarking
-*/
-
-func RunBenchmarking(DayFunc SolutionFuncType) {
+func RunBenchmarking(day int, DayFunc SolutionFuncType) {
 	p1_bench, p2_bench := RunBenchmark(DayFunc)
-	fmt.Println("part 1:", p1_bench.T.Microseconds(), "micro seconds")
-	fmt.Println("part 2:", p2_bench.T.Microseconds(), "micro seconds")
-	// fmt.Println(BOLD, RED_FORE, "---------------------------------", RESET)
-	// fmt.Println(GREEN_FORE, "  🎅🎄❄️  AOC 2024 - Day", res_p1.day, "❄️ 🎄🎅", RESET)
-	// fmt.Println(RED_FORE, " ---------------------------------", RESET)
-	// fmt.Printf("%v%vPart 1:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%vPart 2:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%v%v", GREEN_FORE, BOLD, RED_FORE, GREEN_FORE, res_p1.example_ans, RED_FORE, GREEN_FORE, res_p1.input_ans, GREEN_FORE, RED_FORE, GREEN_FORE, res_p2.example_ans, RED_FORE, GREEN_FORE, res_p2.input_ans, RESET, RESET_STYLE)
+	fmt.Println(BOLD, RED_FORE, "---------------------------------", RESET)
+	fmt.Println(GREEN_FORE, "  🎅", "ho ho ho, it's day", day, "benchmarks time...", "❄️ 🎄", RESET)
+	fmt.Println(RED_FORE, " ---------------------------------", RESET)
+	fmt.Println(RED_FORE, "part 1:", GREEN_FORE, formatTimeForBenchmark(p1_bench))
+	fmt.Println(GREEN_FORE, "part 2:", RED_FORE, formatTimeForBenchmark(p2_bench), RESET, RESET_STYLE)
+}
 
+func formatTimeForBenchmark(bench testing.BenchmarkResult) string {
+	us := bench.T.Microseconds()
+	if us < 1000 {
+		return fmt.Sprintf("%dμs", us)
+	}
+	if us < 1000000 {
+		return fmt.Sprintf("%dms", bench.T.Milliseconds())
+	}
+	return fmt.Sprintf("%.2fs", bench.T.Seconds())
 }
 
 func RunBenchmark(DayFunc SolutionFuncType) (testing.BenchmarkResult, testing.BenchmarkResult) {
