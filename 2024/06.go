@@ -83,6 +83,19 @@ func getNextMove6(pos [3]int) (next [3]int) {
 	return next
 }
 
+func getNextMove6_p2(pos [3]int, grid *[][]string, obstacle_pos *[2]int) (next [3]int) {
+	for {
+		next = getNextMove6(pos)
+		if next[0] < 0 || next[0] >= len(*grid) || next[1] < 0 || next[1] >= len((*grid)[0]) {
+			return pos
+		}
+		if (*grid)[next[0]][next[1]] == HASHTAG || [2]int{next[0], next[1]} == *obstacle_pos {
+			return pos
+		}
+		pos = next
+	}
+}
+
 func Part1_06(filepath string) string {
 	grid := readStringGrid(filepath)
 	sc, sr := -1, -1
@@ -249,7 +262,7 @@ func doesP1SimulationGetLoop(grid *[][]string, starting_pos *[2]int, obstacle_po
 	var next [3]int
 	for {
 		// move
-		next = getNextMove6(current_pos)
+		next = getNextMove6_p2(current_pos, grid, obstacle_pos)
 		c, r := next[0], next[1]
 		if c < 0 || c >= len((*grid)) || r < 0 || r >= len((*grid)[0]) {
 			return true
