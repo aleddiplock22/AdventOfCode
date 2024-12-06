@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+/*
+	TODO: improve benchmarking
+*/
+
 func RunBenchmarking(DayFunc SolutionFuncType) {
 	p1_bench, p2_bench := RunBenchmark(DayFunc)
 	fmt.Println("part 1:", p1_bench.T.Microseconds(), "micro seconds")
