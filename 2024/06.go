@@ -33,7 +33,7 @@ func day06(part2 bool) Solution {
 	}
 }
 
-func manouver(next *[3]int, grid *[][]string, count int) error {
+func manouver(next *[3]int, grid *[][]string, count int, obstacle_pos *[2]int) error {
 	if count == 4 {
 		return errors.New("tried all directions I guess?")
 	}
@@ -44,24 +44,24 @@ func manouver(next *[3]int, grid *[][]string, count int) error {
 	}
 	switch next[2] {
 	case UP6:
-		if (*grid)[next[0]-1][next[1]] == HASHTAG {
+		if (*grid)[next[0]-1][next[1]] == HASHTAG || [2]int{next[0] - 1, next[1]} == *obstacle_pos {
 			next[2] = (next[2] + 1) % 4
-			manouver(next, grid, count+1)
+			manouver(next, grid, count+1, obstacle_pos)
 		}
 	case RIGHT6:
-		if (*grid)[next[0]][next[1]+1] == HASHTAG {
+		if (*grid)[next[0]][next[1]+1] == HASHTAG || [2]int{next[0], next[1] + 1} == *obstacle_pos {
 			next[2] = (next[2] + 1) % 4
-			manouver(next, grid, count+1)
+			manouver(next, grid, count+1, obstacle_pos)
 		}
 	case DOWN6:
-		if (*grid)[next[0]+1][next[1]] == HASHTAG {
+		if (*grid)[next[0]+1][next[1]] == HASHTAG || [2]int{next[0] + 1, next[1]} == *obstacle_pos {
 			next[2] = (next[2] + 1) % 4
-			manouver(next, grid, count+1)
+			manouver(next, grid, count+1, obstacle_pos)
 		}
 	case LEFT6:
-		if (*grid)[next[0]][next[1]-1] == HASHTAG {
+		if (*grid)[next[0]][next[1]-1] == HASHTAG || [2]int{next[0], next[1] - 1} == *obstacle_pos {
 			next[2] = (next[2] + 1) % 4
-			manouver(next, grid, count+1)
+			manouver(next, grid, count+1, obstacle_pos)
 		}
 	default:
 		panic(fmt.Sprintf("Unknown direction in manouver: %v!\n", next[2]))
@@ -127,7 +127,7 @@ outer:
 		basic_seen[[2]int{c, r}] = true
 
 		// check next move orientation
-		err := manouver(&next, &grid, 0)
+		err := manouver(&next, &grid, 0, &[2]int{-1, -1})
 		if err != nil {
 			break
 		}
@@ -178,7 +178,7 @@ func getPossibleBlockageLocations(grid *[][]string, starting_pos *[2]int) (posit
 		positions[[2]int{c, r}] = true
 
 		// check next move orientation
-		err := manouver(&next, grid, 0)
+		err := manouver(&next, grid, 0, &[2]int{-1, -1})
 		if err != nil {
 			break
 		}
@@ -234,38 +234,27 @@ func Part2_06(filepath string) string {
 	return fmt.Sprintf("%v", total)
 }
 
-func doesP1SimulationGetLoop(base_grid *[][]string, starting_pos *[2]int, obstacle_pos *[2]int) bool {
+func doesP1SimulationGetLoop(grid *[][]string, starting_pos *[2]int, obstacle_pos *[2]int) bool {
 	// Avoiding copies bc wtf is going on ....
 	sc, sr := starting_pos[0], starting_pos[1]
 	current_pos := [3]int{sc, sr, UP6}
 
-	grid := make([][]string, len(*base_grid))
-	for i := range *base_grid {
-		grid[i] = make([]string, len((*base_grid)[i]))
-		copy(grid[i], (*base_grid)[i])
-	}
-
-	// Add obstacle in
-	grid[obstacle_pos[0]][obstacle_pos[1]] = HASHTAG
-
 	seen := map[[3]int]bool{current_pos: true}
 
-	err := manouver(&current_pos, &grid, 0)
+	err := manouver(&current_pos, grid, 0, obstacle_pos)
 	if err != nil {
 		panic("dont think we should be stuck on the first move...?")
 	}
 
-	basic_seen := map[[2]int]bool{{sc, sr}: true} // need this to not double count positions where we're just facing a diff direction
 	var next [3]int
 	for {
 		// move
 		next = getNextMove6(current_pos)
 		c, r := next[0], next[1]
-		if c < 0 || c >= len(grid) || r < 0 || r >= len(grid[0]) {
+		if c < 0 || c >= len((*grid)) || r < 0 || r >= len((*grid)[0]) {
 			return true
 		}
-		if grid[c][r] == HASHTAG {
-			fmt.Printf("c,r=%v,%v | obstacle_pos=%v, \n", c, r, obstacle_pos)
+		if (*grid)[c][r] == HASHTAG || [2]int{c, r} == *obstacle_pos {
 			panic("Unexpected obstacle")
 		}
 
@@ -273,10 +262,9 @@ func doesP1SimulationGetLoop(base_grid *[][]string, starting_pos *[2]int, obstac
 			return true
 		}
 		seen[next] = true
-		basic_seen[[2]int{c, r}] = true
 
 		// check next move orientation
-		err := manouver(&next, &grid, 0)
+		err := manouver(&next, grid, 0, obstacle_pos)
 		if err != nil {
 			return false
 		}
