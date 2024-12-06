@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 )
 
 func day04(part2 bool) Solution {
@@ -26,20 +23,6 @@ func day04(part2 bool) Solution {
 			Part2_04(input),
 		}
 	}
-}
-
-// might move this function to utils.go
-func readStringGrid(filepath string) [][]string {
-	file, _ := os.Open(filepath)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	grid := [][]string{}
-	for scanner.Scan() {
-		line := scanner.Text()
-		chars := strings.Split(line, "")
-		grid = append(grid, chars)
-	}
-	return grid
 }
 
 func checkXMASLocs(locs [4][2]int, grid [][]string) bool {

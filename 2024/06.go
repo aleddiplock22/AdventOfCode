@@ -155,7 +155,7 @@ outer:
 	return [2]int{sc, sr}, nil
 }
 
-func getPossibleBlockageLocations(grid *[][]string, starting_pos *[2]int) (positions [][2]int) {
+func getPossibleBlockageLocations(grid *[][]string, starting_pos *[2]int) (positions map[[2]int]bool) {
 	sc, sr := starting_pos[0], starting_pos[1]
 	current_pos := [3]int{sc, sr, UP6}
 
@@ -164,6 +164,7 @@ func getPossibleBlockageLocations(grid *[][]string, starting_pos *[2]int) (posit
 	}
 
 	var next [3]int
+	positions = make(map[[2]int]bool)
 	for {
 		// move
 		next = getNextMove6(current_pos)
@@ -174,7 +175,7 @@ func getPossibleBlockageLocations(grid *[][]string, starting_pos *[2]int) (posit
 		if (*grid)[c][r] == HASHTAG {
 			panic("Unexpected obstacle")
 		}
-		positions = append(positions, [2]int{c, r})
+		positions[[2]int{c, r}] = true
 
 		// check next move orientation
 		err := manouver(&next, grid, 0)
@@ -198,11 +199,14 @@ func Part2_06(filepath string) string {
 	var wg sync.WaitGroup
 	results := make(chan bool)
 
-	// possible_blocks := getPossibleBlockageLocations(&grid, &starting_pos)
+	possible_blocks := getPossibleBlockageLocations(&grid, &starting_pos)
 
 	for c, col := range grid {
 		for r := range col {
 			obstacle_pos := [2]int{c, r}
+			if exists := possible_blocks[obstacle_pos]; !exists {
+				continue
+			}
 			if grid[obstacle_pos[0]][obstacle_pos[1]] == HASHTAG || obstacle_pos == starting_pos {
 				continue
 			}
@@ -214,17 +218,6 @@ func Part2_06(filepath string) string {
 			}(obstacle_pos)
 		}
 	}
-	// for _, obstacle_pos := range possible_blocks {
-	// 	if grid[obstacle_pos[0]][obstacle_pos[1]] == HASHTAG || obstacle_pos == starting_pos {
-	// 		continue
-	// 	}
-	// 	wg.Add(1)
-	// 	go func(obstacle_pos [2]int) {
-	// 		defer wg.Done()
-	// 		result := doesP1SimulationGetLoop(&grid, &starting_pos, &obstacle_pos)
-	// 		results <- result
-	// 	}(obstacle_pos)
-	// }
 
 	// close channel when all goroutines are done:
 	go func() {
