@@ -4,9 +4,6 @@ package main
 Placeholder for the unimplemented go funcs
 */
 
-func day07(part2 bool) Solution {
-	return Solution{}
-}
 func day08(part2 bool) Solution {
 	return Solution{}
 }
