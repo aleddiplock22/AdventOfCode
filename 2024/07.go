@@ -22,10 +22,13 @@ func day07(part2 bool) Solution {
 			Part1_07(input_filepath),
 		}
 	} else {
+		example_p2 := Part2_07(example_filepath)
+		AssertExample("11387", example_p2, 2)
+
 		return Solution{
 			"07",
-			"example part 2",
-			"input part 2",
+			example_p2,
+			Part2_07(input_filepath),
 		}
 	}
 }
@@ -116,28 +119,92 @@ func doCalibrationCheck(calibration *Calibration) int {
 		}
 		val := calibration.Values[item.next_idx]
 
-		current_target := item.total
+		current_value := item.total
 		// 'multiply' op
-		if current_target%val == 0 {
-			heap.Push(&item_heap, Item7{current_target / val, item.next_idx - 1})
+		if current_value%val == 0 {
+			heap.Push(&item_heap, Item7{current_value / val, item.next_idx - 1})
 		}
 		// 'addition' op
-		heap.Push(&item_heap, Item7{current_target - val, item.next_idx - 1})
+		heap.Push(&item_heap, Item7{current_value - val, item.next_idx - 1})
 	}
 	return 0
 }
 
-func Part1_07(filepath string) string {
-	calibrations := readCalibrations(filepath)
+func doCalibrationCheckP2(calibration *Calibration) int {
+	// similar to P1 but let's start from the front to avoid issues
+	start_item := Item7{
+		calibration.Result - calibration.Values[0],
+		1,
+	}
+
+	item_heap := Item7Heap{start_item}
+	heap.Init(&item_heap)
+
+	for item_heap.Len() > 0 {
+		item := heap.Pop(&item_heap).(Item7)
+
+		// Sense Checks
+		if item.total == 0 {
+			panic("should've early returned no???")
+		}
+		if item.total > calibration.Result || item.total < 0 {
+			// overshot or have negative value I guess
+			panic("why invalid boys here")
+		}
+		if item.next_idx >= len(calibration.Values) {
+			// exhausted the values, didn't reach answer, so skip
+			panic("shouldn't be over last idx")
+		}
+
+		val := calibration.Values[item.next_idx]
+		current_value := calibration.Result - item.total
+		var diff int
+
+		for _, op := range []string{"*", "+", "||"} {
+			var updated_val int
+			switch op {
+			case "*":
+				if current_value == 0 {
+					panic("cant multiply by 0")
+				}
+				updated_val = current_value * val
+			case "+":
+				updated_val = current_value + val
+			case "||":
+				concatenated_str := strconv.Itoa(current_value) + strconv.Itoa(val) // "12"+"45"->"1245"
+				updated_val, _ = strconv.Atoi(concatenated_str)                     // "1245" -> 1245
+			default:
+				panic("impossible op")
+			}
+
+			diff = calibration.Result - updated_val
+			if diff == 0 && item.next_idx+1 == len(calibration.Values) {
+				return calibration.Result
+			}
+			if diff == 0 && item.next_idx+1 < len(calibration.Values) {
+				// ffs I didn't allow for the multiplying by 1 did I ....
+				valid := true
+				for _, val := range calibration.Values[item.next_idx+1:] {
+					if val != 1 {
+						valid = false
+						break
+					}
+				}
+				if valid {
+					return calibration.Result
+				}
+			}
+			if diff > 0 && (item.next_idx+1) < len(calibration.Values) {
+				// haven't overshot & still in bounds
+				heap.Push(&item_heap, Item7{diff, item.next_idx + 1})
+			}
+		}
+	}
+	return 0
+}
+
+func Solve(calibrations []Calibration, part2 bool) string {
 	var total int
-
-	// operators_map := make(map[[2]int][]string)
-	// a map which does [2]int{num_multiply, num_add} -> []string{...the produced operators...}
-	// so we avoid repeating work
-	// operator_permutations_map := make(map[[2]int][][]string)
-	// similar concept to above
-
-	// god this was slow, lets try go routines ffs
 	var wg sync.WaitGroup
 	results := make(chan int)
 
@@ -145,7 +212,12 @@ func Part1_07(filepath string) string {
 		wg.Add(1)
 		go func(cal *Calibration) {
 			defer wg.Done()
-			res := doCalibrationCheck(cal)
+			var res int
+			if part2 {
+				res = doCalibrationCheckP2(cal)
+			} else {
+				res = doCalibrationCheck(cal)
+			}
 			results <- res
 		}(&calibration)
 	}
@@ -160,4 +232,13 @@ func Part1_07(filepath string) string {
 	}
 
 	return fmt.Sprintf("%d", total)
+}
+func Part1_07(filepath string) string {
+	calibrations := readCalibrations(filepath)
+	return Solve(calibrations, false)
+}
+
+func Part2_07(filepath string) string {
+	calibrations := readCalibrations(filepath)
+	return Solve(calibrations, true)
 }
