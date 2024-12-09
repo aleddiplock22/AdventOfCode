@@ -176,15 +176,11 @@ func Part2_09(filepath string) string {
 			change = false
 			_tmp_file_size_to_re_alloc = file_size_to_realloc_next
 		}
-		free_mem_idx = free_mem_idx + slices.Index(spare_disc_map[free_mem_idx:], ".")
-		if _tmp_file_size_to_re_alloc < 0 {
-			// start again, memory wasn't big enough for any of it!
-			panic("idk...")
-		}
 		if already_done := done_file_sizes[_tmp_file_size_to_re_alloc]; already_done {
 			_tmp_file_size_to_re_alloc--
 			continue
 		}
+		free_mem_idx = free_mem_idx + slices.Index(spare_disc_map[free_mem_idx:], ".")
 
 		// size of memory chunk we want to move
 		chunk_to_realloc = CalculateChunkToRealloc(_tmp_file_size_to_re_alloc, &spare_disc_map)
