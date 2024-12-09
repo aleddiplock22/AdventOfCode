@@ -9,6 +9,7 @@ Find all problems here: https://adventofcode.com/
 - 2021: Did a singular problem in Go _[2 Stars]_
 - 2022: Started in Python/Go Mixed, my first ever attempted year where I quit around day 12. _[24 stars]_
 - 2023: **Finished in Python**, first full year that I went to the 'end'. _[48 stars]_
+- 2024: WIP in Golang :)
 
 ## Languages
 
