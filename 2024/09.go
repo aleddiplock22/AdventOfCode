@@ -169,7 +169,6 @@ func Part2_09(filepath string) string {
 	_tmp_file_size_to_re_alloc := file_size_to_realloc_next
 	var chunk_to_realloc int
 	for {
-		// fmt.Println(spare_disc_map)
 		if _tmp_file_size_to_re_alloc <= 0 {
 			if !change {
 				break
@@ -187,41 +186,35 @@ func Part2_09(filepath string) string {
 			continue
 		}
 
-		// fmt.Printf("_tmp_file_size=%v, free_mem_idx=%v,\n", _tmp_file_size_to_re_alloc, free_mem_idx)
-
 		// size of memory chunk we want to move
 		chunk_to_realloc = CalculateChunkToRealloc(_tmp_file_size_to_re_alloc, &spare_disc_map)
-		// fmt.Printf("CHUNKSIZE=%v for FILESIZE=%v\n", chunk_to_realloc, _tmp_file_size_to_re_alloc)
 
 		// find space for chunk to fit
 		_free_mem_idx := free_mem_idx
 		var free_chunk_size int = 999999999
 		moving := false
-		// fmt.Println("...finding memory from idx: ", free_mem_idx, "need chunk_size:", chunk_to_realloc)
 
 		_max_idx := findBackwardsIndex(&spare_disc_map, fmt.Sprintf("%d", _tmp_file_size_to_re_alloc))
 		for {
 			if _free_mem_idx >= _max_idx {
-				// fmt.Println("Failed for filesize=", _tmp_file_size_to_re_alloc)
+				// Failed for filesize
 				_tmp_file_size_to_re_alloc--
 				break
 			}
 			__idx_update := slices.Index(spare_disc_map[_free_mem_idx:], ".")
 			if __idx_update == -1 {
-				// fmt.Println("__idx_update==-1 failure for filesize=", _tmp_file_size_to_re_alloc)
+				// __idx_update failure
 				_tmp_file_size_to_re_alloc--
 				break
 			}
 			_free_mem_idx = _free_mem_idx + __idx_update
 			if _free_mem_idx >= _max_idx {
-				// fmt.Println("oob failure for filesize=", _tmp_file_size_to_re_alloc)
+				// oob failure
 				_tmp_file_size_to_re_alloc--
 				break
 			}
 			free_chunk_size = CalculateFreeMemoryChunkSize(&spare_disc_map, _free_mem_idx)
-			// fmt.Println("found chunk of free of size: ", free_chunk_size, "from free idx: ", _free_mem_idx)
 			if chunk_to_realloc <= free_chunk_size {
-				fmt.Println("yes! file_size=", _tmp_file_size_to_re_alloc, "Fit from idx:", _free_mem_idx)
 				// it fits!
 				if file_size_to_realloc_next == _tmp_file_size_to_re_alloc {
 					file_size_to_realloc_next--
