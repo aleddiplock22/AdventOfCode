@@ -73,7 +73,36 @@ func calculateTrailheadScore(grid *[][]int, sr, sc int, part2 bool) (score int) 
 	return score
 }
 
-func SolvePathCountingTask(filepath string, part2 bool) string {
+func calculateTrailheadScoreRecursively(grid *[][]int, sr, sc int) (score int) {
+	// this is nice I guess. I can't think how to cleanly do p1 with recursion though
+	// would have to keep some set of the '9's we reached, i.e. their coords, and count them
+	// but tricky to combine a p1 and p2 function in that case. I'll leave it.
+	R := len(*grid)
+	C := len((*grid)[0])
+
+	height := (*grid)[sr][sc]
+	// reached an end
+	if height == 9 {
+		return 1
+	}
+
+	// find next step
+	for _, drdc := range [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}} {
+		dr, dc := drdc[0], drdc[1]
+		nr := sr + dr
+		nc := sc + dc
+		if nr >= 0 && nr < R && nc >= 0 && nc < C {
+			new_height := (*grid)[nr][nc]
+			if new_height-height != 1 {
+				continue
+			}
+			score += calculateTrailheadScoreRecursively(grid, nr, nc)
+		}
+	}
+	return score
+}
+
+func SolvePathCountingTask(filepath string, part2 bool, use_recursive_solution bool) string {
 	grid := readIntGrid(filepath) // grid[r][c]
 
 	var wg sync.WaitGroup
@@ -85,7 +114,13 @@ func SolvePathCountingTask(filepath string, part2 bool) string {
 				wg.Add(1)
 				go func(sr, sc int) {
 					defer wg.Done()
-					scoreChan <- calculateTrailheadScore(&grid, sr, sc, part2)
+					if use_recursive_solution {
+						if part2 {
+							scoreChan <- calculateTrailheadScoreRecursively(&grid, sr, sc)
+						}
+					} else {
+						scoreChan <- calculateTrailheadScore(&grid, sr, sc, part2)
+					}
 				}(r, c)
 			}
 		}
@@ -105,9 +140,9 @@ func SolvePathCountingTask(filepath string, part2 bool) string {
 }
 
 func Part1_10(filepath string) string {
-	return SolvePathCountingTask(filepath, false)
+	return SolvePathCountingTask(filepath, false, false)
 }
 
 func Part2_10(filepath string) string {
-	return SolvePathCountingTask(filepath, true)
+	return SolvePathCountingTask(filepath, true, true)
 }
