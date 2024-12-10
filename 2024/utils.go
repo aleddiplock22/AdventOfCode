@@ -86,6 +86,13 @@ func SingleDayDevelopment(DayFunc SolutionFuncType) {
 	fmt.Printf("%v%vPart 1:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%vPart 2:%v\n\tExample: %v%v\n\t%vInput: %v%v\n%v%v", GREEN_FORE, BOLD, RED_FORE, GREEN_FORE, res_p1.example_ans, RED_FORE, GREEN_FORE, res_p1.input_ans, GREEN_FORE, RED_FORE, GREEN_FORE, res_p2.example_ans, RED_FORE, GREEN_FORE, res_p2.input_ans, RESET, RESET_STYLE)
 }
 
+func RunVisualisation(day int) {
+	if day != 10 {
+		panic("I don't have visualisations for other days yet!!!!")
+	}
+	DoDay10Visualisation()
+}
+
 func AssertExample(expected string, result string, part int) {
 	if expected != result {
 		panic(fmt.Sprintf("Failed example p%v. Expected: %v, Got: %v\n", part, expected, result))

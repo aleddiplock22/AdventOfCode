@@ -22,8 +22,8 @@ func main() {
 				d, _ := strconv.Atoi(*day)
 				RunBenchmarking(d, dayFunc)
 			} else if *visualise {
-				// TODO: set up system for different days..
-				DoDay10Visualisation()
+				d, _ := strconv.Atoi(*day)
+				RunVisualisation(d)
 			} else {
 				SingleDayDevelopment(dayFunc)
 			}
