@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"sync"
 
@@ -265,15 +264,16 @@ func (m modelDay10Grid) View() string {
 
 	next_path := m.num_paths_displayed - 1
 	if next_path > 0 && next_path < len(m.paths)-1 {
-		color_str := fmt.Sprintf("%d", rand.Intn(231-161)+161)
+		color_str := fmt.Sprintf("%d", next_path%(231-161)+161)
 		for j, position := range m.paths[m.num_paths_displayed] {
-			if j == 0 || j == 9 {
-				continue
-			}
 			r, c := position[0], position[1]
 			replacement_str := termenv.String(fmt.Sprintf(" %d ", m.grid[r][c]))
 			bg := p.Color(color_str)
-			replacement_str = replacement_str.Foreground(p.Color("7"))
+			if j == 0 || j == 9 {
+				replacement_str = replacement_str.Foreground(p.Color("0"))
+			} else {
+				replacement_str = replacement_str.Foreground(p.Color("7"))
+			}
 			replacement_str = replacement_str.Background(bg)
 
 			m.stylised_grid[r][c] = replacement_str
@@ -294,9 +294,9 @@ func (m modelDay10Grid) View() string {
 	if m.num_paths_displayed < len(m.paths) {
 		s += termenv.String(fmt.Sprintf("\nNum paths displayed: %d", m.num_paths_displayed)).Bold().String()
 	} else {
-		s += termenv.String(fmt.Sprintf("You found all %d paths! Nice!\n", m.num_paths_displayed)).Blink().String()
+		s += termenv.String(fmt.Sprintf("\nYou found all %d paths! Nice!", len(m.paths))).Blink().String()
 	}
-	s += "\nPress q to quit.\n"
+	s += termenv.String("\nPress q to quit.\n").Italic().String()
 
 	// Send the UI for rendering
 	return s
