@@ -10,4 +10,7 @@
 ## Visualisation Showcase
 
 **Day 10**
-![day10 gif](aoc24day10vis.gif)
+
+Made this one using [bubble tea]("github.com/charmbracelet/bubbletea") and [termenv]("github.com/muesli/termenv") - enjoy :)
+
+![day10 gif](./visualisations/aoc24day10vis.gif)
