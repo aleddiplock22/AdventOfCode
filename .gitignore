@@ -3,3 +3,4 @@ go.mod
 *.json
 go.sum
 *_templ*
+_personal/*
