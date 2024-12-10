@@ -102,7 +102,6 @@ func readInput(filepath string) string {
 	return file_content
 }
 
-// might move this function to utils.go
 func readStringGrid(filepath string) [][]string {
 	// Get grid input as an grid[col][row] of strings
 	file, _ := os.Open(filepath)
@@ -113,6 +112,28 @@ func readStringGrid(filepath string) [][]string {
 		line := scanner.Text()
 		chars := strings.Split(line, "")
 		grid = append(grid, chars)
+	}
+	return grid
+}
+
+func readIntGrid(filepath string) [][]int {
+	// Get grid input as an grid[col][row] of strings
+	file, _ := os.Open(filepath)
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	grid := [][]int{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		chars := strings.Split(line, "")
+		var row []int
+		for _, char := range chars {
+			digit, err := strconv.Atoi(char)
+			if err != nil {
+				panic("trouble parsing grid value as digit")
+			}
+			row = append(row, digit)
+		}
+		grid = append(grid, row)
 	}
 	return grid
 }
