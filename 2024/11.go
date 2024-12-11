@@ -42,7 +42,6 @@ func (n *Num11) String() string {
 }
 
 func (n *Num11) IsEvenLength() bool {
-	// fmt.Printf("decided %v with length %v, isEven=%v\n", n.value, len(n.String()), len(n.String())%2 == 0)
 	return len(n.String())%2 == 0
 }
 
@@ -58,7 +57,6 @@ func (n *Num11) SplitVals() (int, int) {
 		panic(fmt.Sprintf("trouble reading rhs of num: %d, after splitting.", n.value))
 
 	}
-	// fmt.Printf("%v became %v %v\n", n.value, num1, num2)
 	return num1, num2
 }
 
@@ -170,10 +168,7 @@ func Part2_11(filepath string, N int) string {
 		for num, count := range num_to_count {
 			tmp_nums_to_process = append(tmp_nums_to_process, [2]int{num, count})
 		}
-		// fmt.Println("TO PROCESS: ", tmp_nums_to_process)
 		for _, numcount := range tmp_nums_to_process {
-			// fmt.Println("Processing: ", numcount)
-			// fmt.Println("nums_to_count at start: ", num_to_count)
 			num, count := numcount[0], numcount[1]
 			num_to_count[num] -= count // remove it the number of times we process it
 			if num_to_count[num] == 0 {
