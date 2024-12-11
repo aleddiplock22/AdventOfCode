@@ -20,10 +20,14 @@ func day11(part2 bool) Solution {
 	} else {
 		ex_for_p1_using_p2 := Part2_11(example_filepath, 25)
 		AssertExample("55312", ex_for_p1_using_p2, 1)
+
+		ex_for_p1_using_p2_recursive := Part2_11_recursive_solution(example_filepath, 25)
+		AssertExample("55312", ex_for_p1_using_p2_recursive, 2)
+
 		return Solution{
 			"11",
 			"N/A",
-			Part2_11(input_filepath, 75),
+			Part2_11_recursive_solution(input_filepath, 75),
 		}
 	}
 }
@@ -193,4 +197,39 @@ func Part2_11(filepath string, N int) string {
 	}
 
 	return fmt.Sprintf("%d", num_rocks)
+}
+
+func CountRocksRecursively(value int, steps_left int, cache *map[[2]int]int) int {
+	if steps_left == 0 {
+		return 1
+	}
+	key := [2]int{value, steps_left}
+	if answer, exists := (*cache)[key]; exists {
+		return answer
+	}
+	var ans int
+	if value == 0 {
+		ans = CountRocksRecursively(1, steps_left-1, cache)
+	} else if IsEvenLengthAsString(value) {
+		num1, num2 := SplitIntegerInHalf(value)
+		ans = CountRocksRecursively(num1, steps_left-1, cache) + CountRocksRecursively(num2, steps_left-1, cache)
+	} else {
+		ans = CountRocksRecursively(value*2024, steps_left-1, cache)
+	}
+	(*cache)[key] = ans
+	return ans
+}
+
+func Part2_11_recursive_solution(filepath string, N int) string {
+	raw_input := readInput(filepath)
+	nums_str := strings.Split(raw_input, " ")
+	var rockCount int
+	cache := make(map[[2]int]int)
+	for _, num_str := range nums_str {
+		num, _ := strconv.Atoi(num_str)
+		// interestingly was 5x slower when using go routines and a sync.Map
+		rockCount += CountRocksRecursively(num, N, &cache)
+	}
+
+	return fmt.Sprintf("%d", rockCount)
 }
