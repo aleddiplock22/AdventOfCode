@@ -18,11 +18,12 @@ func day11(part2 bool) Solution {
 			Part1_11(input_filepath),
 		}
 	} else {
-		// example_p1 := Part2_11(example_filepath)
+		ex_for_p1_using_p2 := Part2_11(example_filepath, 25)
+		AssertExample("55312", ex_for_p1_using_p2, 1)
 		return Solution{
 			"11",
-			"too slow... dw about it", //example_p1,
-			Part2_11(input_filepath),
+			"N/A",
+			Part2_11(input_filepath, 75),
 		}
 	}
 }
@@ -92,7 +93,6 @@ func HowManyRocks(nums_str []string, blinks int) int {
 	// RUN SIMULATION
 	var num_rocks int
 	for i := range blinks + 1 {
-		fmt.Printf("%v / %v\n", i, blinks)
 		curr := first_num
 		for {
 			if i == blinks {
@@ -130,17 +130,67 @@ func Part1_11(filepath string) string {
 	return fmt.Sprintf("%d", num_rocks)
 }
 
-func Part2_11(filepath string) string {
-	// raw_input := readInput(filepath)
-	// nums_str := strings.Split(raw_input, " ")
-	// num_rocks := HowManyRocks(nums_str, 75)  // oh no no nono nono
+func IsEvenLengthAsString(x int) bool {
+	return len(strconv.Itoa(x))%2 == 0
+}
 
-	// var nums []int
-	// for _, num_str := range nums_str {
-	// 	num, _ := strconv.Atoi(num_str)
-	// 	nums = append(nums, num)
-	// }
+func SplitIntegerInHalf(x int) (int, int) {
+	_str := strconv.Itoa(x)
+	_str1, _str2 := _str[:len(_str)/2], _str[len(_str)/2:]
+	num1, _ := strconv.Atoi(_str1)
+	num2, _ := strconv.Atoi(_str2)
+	return num1, num2
+}
 
-	num_rocks := 1
+func Part2_11(filepath string, N int) string {
+	raw_input := readInput(filepath)
+	nums_str := strings.Split(raw_input, " ")
+
+	/*
+		what if we had a map with
+		{
+			number: appearences
+		}
+			so we just processed number and added to it each gen!
+	*/
+
+	num_to_count := make(map[int]int)
+	for _, num_str := range nums_str {
+		num, _ := strconv.Atoi(num_str)
+		num_to_count[num] = 1
+	}
+
+	for range N {
+		// create tmp copy to avoid editing within loop!
+		tmp_nums_to_process := [][2]int{}
+		for num, count := range num_to_count {
+			tmp_nums_to_process = append(tmp_nums_to_process, [2]int{num, count})
+		}
+		// fmt.Println("TO PROCESS: ", tmp_nums_to_process)
+		for _, numcount := range tmp_nums_to_process {
+			// fmt.Println("Processing: ", numcount)
+			// fmt.Println("nums_to_count at start: ", num_to_count)
+			num, count := numcount[0], numcount[1]
+			num_to_count[num] -= count // remove it the number of times we process it
+			if num_to_count[num] == 0 {
+				delete(num_to_count, num)
+			}
+			if num == 0 {
+				num_to_count[1] += count
+			} else if IsEvenLengthAsString(num) {
+				num1, num2 := SplitIntegerInHalf(num)
+				num_to_count[num1] += count
+				num_to_count[num2] += count
+			} else {
+				num_to_count[num*2024] += count
+			}
+		}
+	}
+
+	var num_rocks int
+	for _, count := range num_to_count {
+		num_rocks += count
+	}
+
 	return fmt.Sprintf("%d", num_rocks)
 }
