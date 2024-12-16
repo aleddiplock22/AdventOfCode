@@ -84,6 +84,7 @@ outer:
 			best_cost = item.cost
 			break
 		}
+	dir_loop:
 		for i := range 4 {
 			// 0 1 2 3
 			var ny, nx int
@@ -98,7 +99,7 @@ outer:
 				case 1:
 					cost = 1001
 				case 2:
-					cost = 2001
+					continue dir_loop
 				case 3:
 					cost = 1001
 				}
@@ -113,14 +114,14 @@ outer:
 				case 2:
 					cost = 1001
 				case 3:
-					cost = 2001
+					continue dir_loop
 				}
 			case 2:
 				// down
 				ny, nx = item.y+1, item.x
 				switch item.dir {
 				case 0:
-					cost = 2001
+					continue dir_loop
 				case 1:
 					cost = 1001
 				case 2:
@@ -135,7 +136,7 @@ outer:
 				case 0:
 					cost = 1001
 				case 1:
-					cost = 2001
+					continue dir_loop
 				case 2:
 					cost = 1001
 				case 3:
