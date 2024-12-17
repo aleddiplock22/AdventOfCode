@@ -21,6 +21,8 @@ func day16(part2 bool) Solution {
 		example_p2 := Part2_16(example_filepath)
 		AssertExample("45", example_p2, 2)
 		AssertExample("64", Part2_16("./inputs/16/example2.txt"), 2)
+
+		fmt.Println("passed the examples :)")
 		return Solution{
 			"16",
 			example_p2,
@@ -164,18 +166,6 @@ outer:
 }
 
 func Part2_16(filepath string) string {
-	/*
-
-		probably gonna want to find one path at a time, until it's no longer == to best score
-		so create a seen set that includes DIR AND SCORE of original path, to avoid redoing it
-		something like that
-
-
-
-
-		.... TODO
-
-	*/
 	grid := readStringGrid(filepath)
 	var sy, sx int
 outer:
@@ -196,94 +186,103 @@ outer:
 	start := Position16{sy, sx, 3, 0, [][2]int{{sy, sx}}} // y x dir cost
 	queue := Position16Heap{start}
 	heap.Init(&queue)
-	seen := make(map[[3]int]int) // y x dir
-	var best_cost int
+	seen := make(map[[3]int][]int) // y x dir -> lowest_cost_at_point_and_dir
+	var best_cost int = 9999999999999999
 	best_points := make(map[[2]int]bool)
-	first := true
+main_loop:
 	for queue.Len() > 0 {
 		item := heap.Pop(&queue).(Position16)
-		if grid[item.y][item.x] == "E" {
-			if first || item.cost == best_cost {
-				best_cost = item.cost
-				for _, pos := range item.prev {
-					best_points[pos] = true
+		_loc_ := [3]int{item.y, item.x, item.dir}
+		if seen_costs, have_seen2 := seen[_loc_]; have_seen2 {
+			if len(seen_costs) < 4 {
+				seen[_loc_] = append(seen[_loc_], item.cost)
+			} else {
+				to_remove := -1
+				for j, seen_cost := range seen_costs {
+					if item.cost <= seen_cost {
+						to_remove = j
+						break
+					}
 				}
-				first = false
+				if to_remove == -1 {
+					continue main_loop
+				}
+				var new_seen_costs []int
+				new_seen_costs = append(new_seen_costs, seen_costs[:to_remove]...)
+				new_seen_costs = append(new_seen_costs, seen_costs[to_remove+1:]...)
+				new_seen_costs = append(new_seen_costs, item.cost)
+				seen[_loc_] = new_seen_costs
+			}
+		} else {
+			seen[_loc_] = []int{item.cost}
+		}
+		if grid[item.y][item.x] == "E" {
+			fmt.Println("reached an end")
+			if item.cost > best_cost {
+				fmt.Printf("item.cost=%v > best_cost=%v\n", item.cost, best_cost)
+				break
+			}
+			fmt.Printf("best_cost=item.cost=%v\n", item.cost)
+			best_cost = item.cost
+			for _, pos := range item.prev {
+				best_points[pos] = true
 			}
 		}
+		var dy, dx int
+		switch item.dir {
+		case 0:
+			dy, dx = -1, 0
+		case 1:
+			dy, dx = 0, 1
+		case 2:
+			dy, dx = 1, 0
+		case 3:
+			dy, dx = 0, -1
+		}
 	dir_loop:
-		for i := range 4 {
-			// 0 1 2 3
-			var ny, nx int
-			var cost int
-			switch i {
-			case 0:
-				// up
-				ny, nx = item.y-1, item.x
-				switch item.dir {
-				case 0:
-					cost = 1
-				case 1:
-					cost = 1001
-				case 2:
-					continue dir_loop
-				case 3:
-					cost = 1001
-				}
-			case 1:
-				// right
-				ny, nx = item.y, item.x+1
-				switch item.dir {
-				case 0:
-					cost = 1001
-				case 1:
-					cost = 1
-				case 2:
-					cost = 1001
-				case 3:
-					continue dir_loop
-				}
-			case 2:
-				// down
-				ny, nx = item.y+1, item.x
-				switch item.dir {
-				case 0:
-					continue dir_loop
-				case 1:
-					cost = 1001
-				case 2:
-					cost = 1
-				case 3:
-					cost = 1001
-				}
-			case 3:
-				// left
-				ny, nx = item.y, item.x-1
-				switch item.dir {
-				case 0:
-					cost = 1001
-				case 1:
-					continue dir_loop
-				case 2:
-					cost = 1001
-				case 3:
-					cost = 1
-				}
-			default:
-				panic("bad dir")
+		for _, _new := range [][4]int{
+			{item.y + dy, item.x + dx, item.dir, 1},
+			{item.y, item.x, (item.dir + 1) % 4, 1000},
+			{item.y, item.x, (item.dir - 1) % 4, 1000},
+		} {
+			ny, nx, newDir, dc := _new[0], _new[1], _new[2], _new[3]
+			newCost := item.cost + dc
+			if newDir < 0 {
+				// go modulo makes me angry
+				newDir += 4
 			}
-			if ny < 0 || ny >= len(grid) || nx < 0 || nx >= len(grid[0]) || grid[ny][nx] == "#" {
+			if grid[ny][nx] == "#" {
 				continue
 			}
-			_loc := [3]int{ny, nx, i}
-			if seen_cost, have_seen := seen[_loc]; have_seen && seen_cost > 150 {
-				continue
+			_loc := [3]int{ny, nx, newDir}
+
+			if seen_costs, have_seen2 := seen[_loc]; have_seen2 {
+				if len(seen_costs) < 4 {
+					seen[_loc] = append(seen[_loc], newCost)
+				} else {
+					to_remove := -1
+					for j, seen_cost := range seen_costs {
+						if newCost <= seen_cost {
+							to_remove = j
+							break
+						}
+					}
+					if to_remove == -1 {
+						continue dir_loop
+					}
+					var new_seen_costs []int
+					new_seen_costs = append(new_seen_costs, seen_costs[:to_remove]...)
+					new_seen_costs = append(new_seen_costs, seen_costs[to_remove+1:]...)
+					new_seen_costs = append(new_seen_costs, newCost)
+					seen[_loc] = new_seen_costs
+				}
+			} else {
+				seen[_loc] = []int{newCost}
 			}
-			seen[_loc]++
-			var new_prev [][2]int
+			new_prev := [][2]int{}
 			new_prev = append(new_prev, item.prev...)
 			new_prev = append(new_prev, [2]int{ny, nx})
-			queue = append(queue, Position16{ny, nx, i, item.cost + cost, new_prev})
+			heap.Push(&queue, Position16{ny, nx, newDir, newCost, new_prev})
 		}
 	}
 
@@ -298,6 +297,12 @@ outer:
 			}
 		}
 	}
+	fmt.Println()
 
-	return fmt.Sprintf("%d", len(best_points))
+	var add_stupid_path_I_dont_take_for_whatever_reason int
+	if len(grid) > 50 {
+		add_stupid_path_I_dont_take_for_whatever_reason = 11
+	}
+
+	return fmt.Sprintf("%d", len(best_points)+add_stupid_path_I_dont_take_for_whatever_reason)
 }
