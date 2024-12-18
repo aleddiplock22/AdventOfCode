@@ -20,12 +20,13 @@ func day17(part2 bool) Solution {
 			Part1_17(input_filepath),
 		}
 	} else {
+		fmt.Print("\n\n\n")
 		example_p2 := Part2_17("./inputs/17/example2.txt")
-		// AssertExample("117440", example_p2, 2)
+		AssertExample("117440", example_p2, 2)
 		return Solution{
 			"17",
 			example_p2,
-			"", // Part2_17(input_filepath),
+			Part2_17(input_filepath),
 		}
 	}
 }
@@ -152,7 +153,6 @@ program_loop:
 			ans = int(float64(register_A) / math.Pow(2, float64(combo_operand)))
 			register_C = ans
 		default:
-			fmt.Println("EARLY EXIT?")
 			break program_loop
 		}
 	}
@@ -160,45 +160,65 @@ program_loop:
 	return strings.Join(output, ",")
 }
 
+func FindTarget17(input Day17, targets *[]int, ans int) int {
+	if len(*targets) == 0 {
+		return ans
+	}
+
+	_trget := (*targets)[len(*targets)-1]
+	_target := strconv.Itoa(_trget)
+	for t := range 8 {
+		new_a := ans<<3 | t
+		_input := Day17{
+			new_a,
+			input.B,
+			input.C,
+			input.Program,
+		}
+		output := RunProgramFromInput(_input)
+
+		_out := strings.Split(output, ",")
+		_out_check := _out[0]
+		if _out_check == _target {
+			var tmp []int
+			tmp = append(tmp, (*targets)[:len(*targets)-1]...)
+			sub_ans := FindTarget17(input, &tmp, new_a)
+			if sub_ans == -1 {
+				continue
+			}
+			return sub_ans
+		}
+	}
+	return -1
+}
+
 func Part2_17(filepath string) string {
 	input := parseDay17Input(filepath)
 
-	var prog_strs []string
-	for _, val := range input.Program {
-		prog_strs = append(prog_strs, strconv.Itoa(val))
+	/*
+		Can see that first step in program is take last 3 bits of A (A%8)
+		And put it in register B
+
+		RegB & RegC do stuff on that number until outputted
+
+		A then truncated by 3 bits (A / 8)
+
+		Cycle back to start of program
+	*/
+
+	/*
+		Reverse engineering the above:
+
+		1. find 3-bit number that the program outputs last number in our desired output
+		2. bitshift this number 3 to the left
+		3. find new 3-bit number that outputs the second to last one of prorgram
+		... and so on
+	*/
+
+	ans := FindTarget17(input, &input.Program, 0)
+	if ans == -1 {
+		panic("Couldnt find for input :(")
 	}
-	expected_output := strings.Join(prog_strs, ",")
 
-	outputCheckChan := make(chan [2]string)
-	doneChan := make(chan int, 1)
-
-	var result string
-	go func() {
-		for output_check := range outputCheckChan {
-			if expected_output == output_check[0] {
-				result = output_check[1]
-				doneChan <- 1
-				return
-			}
-		}
-	}()
-
-	var a int
-	for {
-		select {
-		case <-doneChan:
-			return result
-		default:
-			go func(a_replace int) {
-				tmp_input := Day17{
-					a_replace,
-					input.B,
-					input.C,
-					input.Program,
-				}
-				outputCheckChan <- [2]string{RunProgramFromInput(tmp_input), strconv.Itoa(a_replace)}
-			}(a)
-			a++
-		}
-	}
+	return strconv.Itoa(ans)
 }
