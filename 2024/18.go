@@ -19,10 +19,12 @@ func day18(part2 bool) Solution {
 			Part1_18(input_filepath, 70, 1024),
 		}
 	} else {
+		example_p2 := Part2_18(example_filepath, 6, 12)
+		AssertExample("6,1", example_p2, 2)
 		return Solution{
 			"18",
-			"example part 2",
-			"input part 2",
+			example_p2,
+			Part2_18(input_filepath, 70, 1024),
 		}
 	}
 }
@@ -70,9 +72,6 @@ type Position18 struct {
 
 func Part1_18(filepath string, n int, num_bytes int) string {
 	grid := GetGridDay18(filepath, n, num_bytes)
-	for _, line := range grid {
-		fmt.Println(line)
-	}
 
 	Y := len(grid)
 	X := len(grid[0])
@@ -107,4 +106,67 @@ func Part1_18(filepath string, n int, num_bytes int) string {
 	}
 
 	return fmt.Sprintf("%d", least_steps)
+}
+
+func FallingBytesMazeSolver(filepath string, n int, num_bytes int) int {
+	grid := GetGridDay18(filepath, n, num_bytes)
+	Y := len(grid)
+	X := len(grid[0])
+	start := Position18{0, 0, 0} // y x steps
+	queue := []Position18{start}
+	seen := make(map[[2]int]bool)
+	least_steps := -1
+	for len(queue) > 0 {
+		pos := queue[0]
+		queue = queue[1:]
+		y, x, steps := pos.y, pos.x, pos.steps
+		for _, dydx := range FourSideDirs {
+			dy, dx := dydx[0], dydx[1]
+			ny := y + dy
+			nx := x + dx
+			if ny < 0 || ny >= Y || nx < 0 || nx >= X || grid[ny][nx] == "#" {
+				continue
+			}
+			if _, exists := seen[[2]int{ny, nx}]; exists {
+				continue
+			}
+			if ny == n && nx == n {
+				least_steps = steps + 1
+				break
+			}
+			seen[[2]int{ny, nx}] = true
+			queue = append(queue, Position18{
+				ny, nx, steps + 1,
+			})
+		}
+	}
+	return least_steps
+}
+
+func Part2_18(filepath string, n int, num_bytes int) string {
+	max_bytes := n * n
+	min_bytes := num_bytes
+	var curr_bytes int
+	for {
+		curr_bytes = (max_bytes-min_bytes)/2 + min_bytes
+		ans := FallingBytesMazeSolver(filepath, n, curr_bytes)
+		if ans == -1 {
+			if max_bytes == min_bytes {
+				max_bytes--
+				min_bytes--
+			} else {
+				max_bytes = curr_bytes
+			}
+		} else if max_bytes-min_bytes == 1 {
+			min_bytes++
+		} else if max_bytes == min_bytes {
+			break
+		} else {
+			min_bytes = curr_bytes
+		}
+	}
+
+	raw_input := readInput(filepath)
+	ans := strings.Split(raw_input, "\r\n")[max_bytes]
+	return fmt.Sprintf("%v", ans)
 }
