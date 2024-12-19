@@ -18,6 +18,7 @@ func day19(part2 bool) Solution {
 		}
 	} else {
 		example_p2 := Part2_19(example_filepath)
+		AssertExample("16", example_p2, 2)
 		return Solution{
 			"19",
 			example_p2,
@@ -108,32 +109,58 @@ func Part2_19(filepath string) string {
 
 	var count int
 	for _, target := range targets {
-		count += NumViableTowelComboRecurisve(target, options)
-		fmt.Printf("did target %v, now count=%v.\n", target, count)
+		count += NumViableTowelDP(target, options)
 	}
 
 	return fmt.Sprintf("%d", count)
 }
 
+// I was quite pleased with this but it's crazy slow lol
 func NumViableTowelComboRecurisve(target string, options []string) int {
-	/*
-		TODO: UNDERSTAND, write pen and paper, then reimplement without looking,
-		then allowed to use this!
-	*/
+	if len(target) == 0 {
+		// succeed
+		return 1
+	}
+	total := 0
+	for _, option := range options {
+		n := len(option)
+		if len(target) < n {
+			continue
+		}
+		sub_target := target[:n]
 
-	dp := make([]int, len(target)+1)
-	// dp[i] represents number of valid combinations for substring target[:i]
-	dp[0] = 1 // Empty string has one valid combination
+		if sub_target == option {
+			total += NumViableTowelComboRecurisve(target[n:], options)
+		}
+	}
+	return total
+}
+
+// this got spoiled a bit when I was asking AI how to optimise my recursive one, but I've learned and understood!!
+// similar to leetcode problems I've done tbf, should've spotted it
+func NumViableTowelDP(target string, options []string) int {
+	valid_combinations := make([]int, len(target)+1)
+	// valid_combinations[i] represents number of valid combinations for substring target[:i]
+	valid_combinations[0] = 1 // Empty string has one valid combination
 
 	for i := 1; i <= len(target); i++ {
 		for _, option := range options {
-			if i >= len(option) && target[i-len(option):i] == option {
+			L := len(option)
+			if i < L {
+				continue
+			}
+			// i >= L just guarantees we can slice
+			substring_window := target[i-L : i]
+			// target[i-len(option):i] is a window into target from just before i up to it
+			if substring_window == option {
 				// match -> add the number of combinations that were possible before this match
-				// (dp[i-len(option)]) to the current position (dp[i]).
-				dp[i] += dp[i-len(option)]
+				// (valid_combinations[i-len(option)]) to the current position (valid_combinations[i]).
+				valid_combinations[i] += valid_combinations[i-L]
 			}
 		}
 	}
 
-	return dp[len(target)]
+	// thus valid_combinations[len(target)] gives us the total valid combinations for the entire substring,
+	// since we have this cumulative sum thing going on
+	return valid_combinations[len(target)]
 }
