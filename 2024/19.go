@@ -103,15 +103,6 @@ func Part1_19(filepath string) string {
 	return fmt.Sprintf("%d", count)
 }
 
-/*
-  - recursive solution where I fire off into a new one each time found,
-    instead of the whole pointer moving
-
-- so for each 'layer' [pointer] find all valid matches, each += into an isValid
-
-  - some sort of deduplication, maybe keep track of the 'path' and fill those spots
-    in the tried map to block redoing it...? or return all paths then dedup... not sure
-*/
 func Part2_19(filepath string) string {
 	options, targets := ParseDay19(filepath)
 
@@ -124,30 +115,25 @@ func Part2_19(filepath string) string {
 	return fmt.Sprintf("%d", count)
 }
 
-/*
-Ok change of plan. Try to do something a bit more 'branch'-y
-
-so: find a submatch
-
-	-> new thread that looks for REMAINDER of target
-	(w a 0 pointer always, so just doing startswith essentially?)
-*/
 func NumViableTowelComboRecurisve(target string, options []string) int {
-	if len(target) == 0 {
-		// succeed
-		return 1
-	}
-	total := 0
-	for _, option := range options {
-		n := len(option)
-		if len(target) < n {
-			continue
-		}
-		sub_target := target[:n]
+	/*
+		TODO: UNDERSTAND, write pen and paper, then reimplement without looking,
+		then allowed to use this!
+	*/
 
-		if sub_target == option {
-			total += NumViableTowelComboRecurisve(target[n:], options)
+	dp := make([]int, len(target)+1)
+	// dp[i] represents number of valid combinations for substring target[:i]
+	dp[0] = 1 // Empty string has one valid combination
+
+	for i := 1; i <= len(target); i++ {
+		for _, option := range options {
+			if i >= len(option) && target[i-len(option):i] == option {
+				// match -> add the number of combinations that were possible before this match
+				// (dp[i-len(option)]) to the current position (dp[i]).
+				dp[i] += dp[i-len(option)]
+			}
 		}
 	}
-	return total
+
+	return dp[len(target)]
 }
