@@ -21,7 +21,7 @@ func day19(part2 bool) Solution {
 		return Solution{
 			"19",
 			example_p2,
-			"input part 2",
+			Part2_19(input_filepath),
 		}
 	}
 }
@@ -117,71 +117,37 @@ func Part2_19(filepath string) string {
 
 	var count int
 	for _, target := range targets {
-		count += NumViableTowelCombo(target, options)
+		count += NumViableTowelComboRecurisve(target, options)
+		fmt.Printf("did target %v, now count=%v.\n", target, count)
 	}
 
 	return fmt.Sprintf("%d", count)
 }
 
-func NumViableTowelCombo(target string, options []string) int {
-	var total int
+/*
+Ok change of plan. Try to do something a bit more 'branch'-y
 
-	tried := make([][]int, len(target))
-	for i := range tried {
-		tried[i] = make([]int, len(options))
+so: find a submatch
+
+	-> new thread that looks for REMAINDER of target
+	(w a 0 pointer always, so just doing startswith essentially?)
+*/
+func NumViableTowelComboRecurisve(target string, options []string) int {
+	if len(target) == 0 {
+		// succeed
+		return 1
 	}
-
-	for {
-		pointer := 0
-		previous_pointer := 0
-		previous_j := 0
-		valid := false
-	attempt_loop:
-		for {
-			if pointer == len(target) {
-				valid = true
-				break attempt_loop
-			}
-			sub_found := false
-			if RowFilledWithOnes(tried, pointer) {
-				valid = false
-				break attempt_loop
-			}
-			for j, option := range options {
-				if tried[pointer][j] == 1 {
-					continue
-				}
-				n := len(option)
-				if pointer+n > len(target) {
-					tried[pointer][j] = 1
-					continue
-				}
-				sub_target := target[pointer : pointer+n]
-
-				if sub_target == option {
-					sub_found = true
-					previous_j = j
-					previous_pointer = pointer
-					pointer += n
-					break
-				}
-			}
-			if !sub_found {
-				tried[previous_pointer][previous_j] = 1 // this combo caused issue, so dont allow it!
-				if pointer == 0 {
-					valid = false
-					break attempt_loop
-				}
-				pointer = 0
-			}
+	total := 0
+	for _, option := range options {
+		n := len(option)
+		if len(target) < n {
+			continue
 		}
-		// out of attempt loop
-		if !valid {
-			// hit an invalid case, no more valid cases remain?
-			return total
-		} else {
-			// TODO avoid treading previous path!
-			total++
+		sub_target := target[:n]
+
+		if sub_target == option {
+			total += NumViableTowelComboRecurisve(target[n:], options)
 		}
 	}
+	return total
 }
