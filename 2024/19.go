@@ -17,12 +17,17 @@ func day19(part2 bool) Solution {
 			Part1_19(input_filepath),
 		}
 	} else {
-		example_p2 := Part2_19(example_filepath)
-		AssertExample("16", example_p2, 2)
+		// DP approach
+		example_p2_dp := Part2_19_dp(example_filepath)
+		AssertExample("16", example_p2_dp, 2)
+		// Recursion with cache
+		example_p2_r := Part2_19_recursive(example_filepath)
+		AssertExample("16", example_p2_r, 2)
+
 		return Solution{
 			"19",
-			example_p2,
-			Part2_19(input_filepath),
+			example_p2_r,
+			Part2_19_recursive(input_filepath), // my recursion wins!!!
 		}
 	}
 }
@@ -104,7 +109,7 @@ func Part1_19(filepath string) string {
 	return fmt.Sprintf("%d", count)
 }
 
-func Part2_19(filepath string) string {
+func Part2_19_dp(filepath string) string {
 	options, targets := ParseDay19(filepath)
 
 	var count int
@@ -115,8 +120,23 @@ func Part2_19(filepath string) string {
 	return fmt.Sprintf("%d", count)
 }
 
+func Part2_19_recursive(filepath string) string {
+	options, targets := ParseDay19(filepath)
+	cache := make(map[string]int)
+
+	var count int
+	for _, target := range targets {
+		count += NumViableTowelComboRecurisve(target, options, cache)
+	}
+
+	return fmt.Sprintf("%d", count)
+}
+
 // I was quite pleased with this but it's crazy slow lol
-func NumViableTowelComboRecurisve(target string, options []string) int {
+func NumViableTowelComboRecurisve(target string, options []string, cache map[string]int) int {
+	if answer, exists := cache[target]; exists {
+		return answer
+	}
 	if len(target) == 0 {
 		// succeed
 		return 1
@@ -130,7 +150,9 @@ func NumViableTowelComboRecurisve(target string, options []string) int {
 		sub_target := target[:n]
 
 		if sub_target == option {
-			total += NumViableTowelComboRecurisve(target[n:], options)
+			ans := NumViableTowelComboRecurisve(target[n:], options, cache)
+			cache[target[n:]] = ans
+			total += ans
 		}
 	}
 	return total
