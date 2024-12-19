@@ -40,11 +40,12 @@ func day{day}(part2 bool) Solution {{
 
 if __name__ == "__main__":
     assert Path.cwd().stem == "2024", "you need to `cd 2024`"
+    assert not Path(f"{day}.go").exists, "Day already made!"    
     with Path(f"{day}.go").open("w") as f:
         f.write(daylines)
     
     inputs_dir = Path.cwd().joinpath("inputs").joinpath(sys.argv[1])
-    inputs_dir.mkdir(exist_ok=True)
+    inputs_dir.mkdir(exist_ok=False)
 
     with inputs_dir.joinpath("example.txt").open("w") as f:
         f.write("")
