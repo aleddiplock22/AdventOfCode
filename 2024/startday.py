@@ -40,7 +40,7 @@ func day{day}(part2 bool) Solution {{
 
 if __name__ == "__main__":
     assert Path.cwd().stem == "2024", "you need to `cd 2024`"
-    assert not Path(f"{day}.go").exists, "Day already made!"    
+    assert not Path(f"{day}.go").exists(), f"Path \"{Path('' + day +'.go').as_posix()}\" already made!"    
     with Path(f"{day}.go").open("w") as f:
         f.write(daylines)
     
