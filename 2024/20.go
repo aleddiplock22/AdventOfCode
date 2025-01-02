@@ -2,25 +2,26 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
 
 func day20(part2 bool) Solution {
 	example_filepath := GetExamplePath(20)
-	// input_filepath := GetInputPath(20)
+	input_filepath := GetInputPath(20)
 	if !part2 {
 		example_p1 := Part1_20(example_filepath)
 		return Solution{
 			"20",
 			example_p1,
-			"", //Part1_20(input_filepath),
+			Part1_20(input_filepath), // could and should optimise p1 using p2 method but 2 instead of 20, but alas
 		}
 	} else {
-		fmt.Println("TRYING EXAMPLE P2")
-		example_p2 := Part2_20(example_filepath)
+		example_p2 := Part2_20(example_filepath, 50)
+		AssertExample("285", example_p2, 2)
 		return Solution{
 			"20",
 			example_p2,
-			"", //Part2_20(input_filepath),
+			Part2_20(input_filepath, 100),
 		}
 	}
 }
@@ -122,71 +123,7 @@ func FindShortestPathInGridDefault(sr, sc, er, ec int, grid *[][]string, cheat_p
 	return -1, [][2]int{}
 }
 
-func FindShortestPathsInGridWithLongCheats(sr, sc, er, ec int, grid *[][]string, cheat_start [2]int, target int) (results [][3]int) {
-	queue := [][6]int{{sr, sc, 0, 20, -1, -1}} // start_r, start_c, steps, cheat_steps_remaining, cheat_end_r, cheat_end_c
-	seen := map[[2]int]bool{{sr, sc}: true}
-	seen2 := make(map[[2]int]bool)
-	for len(queue) > 0 {
-		pos := queue[0]
-		queue = queue[1:]
-		r, c, steps, cheat_duration, cheat_end_r, cheat_end_c := pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]
-		for _, drdc := range FourSideDirs {
-			dr, dc := drdc[0], drdc[1]
-			nr := r + dr
-			nc := c + dc
-			_loc := [2]int{nr, nc}
-			if nr < 0 || nr >= len(*grid) || nc < 0 || nc >= len((*grid)[0]) {
-				continue
-			}
-			// if _, exists := seen[_loc]; exists {
-			// 	continue
-			// }
-
-			n_cheat_end_r := cheat_end_r
-			n_cheat_end_c := cheat_end_c
-			n_cheat_duration := cheat_duration
-
-			cheat_just_started := false
-			if _loc == cheat_start {
-				cheat_just_started = true
-				n_cheat_duration--
-			}
-
-			if n_cheat_duration > 0 && n_cheat_duration < 20 {
-				n_cheat_end_r, n_cheat_end_c = nr, nc
-			}
-
-			if (*grid)[nr][nc] == "#" {
-				if !(cheat_duration > 0 && cheat_duration < 20) {
-					continue
-				}
-			}
-			if !cheat_just_started && cheat_duration < 20 {
-				n_cheat_duration--
-			}
-			if nr == er && nc == ec {
-				// fmt.Printf("END IN %v steps WITH %v cheat_duration left! (cheat_start=%v)\n", steps+1, n_cheat_duration, cheat_start)
-				if _, exists := seen2[[2]int{n_cheat_end_r, n_cheat_end_c}]; exists {
-					continue
-				}
-				seen2[[2]int{n_cheat_end_r, n_cheat_end_c}] = true
-				if steps+1 <= target {
-					fmt.Println("Found result:", steps+1, n_cheat_end_r, n_cheat_end_c)
-					results = append(results, [3]int{steps + 1, n_cheat_end_r, n_cheat_end_c})
-				} else {
-					fmt.Println("returning")
-					return results
-				}
-			} else {
-				seen[_loc] = true
-				queue = append(queue, [6]int{nr, nc, steps + 1, n_cheat_duration, n_cheat_end_r, n_cheat_end_c})
-			}
-		}
-	}
-	return results
-}
-
-func Part2_20(filepath string) string {
+func Part2_20(filepath string, save_goal int) string {
 	grid := readStringGrid(filepath)
 	var sr, sc, er, ec int
 	for r, row := range grid {
@@ -198,44 +135,46 @@ func Part2_20(filepath string) string {
 			}
 		}
 	}
-	shortest_without_cheating, _ := FindShortestPathInGridDefault(sr, sc, er, ec, &grid, [2]int{})
-	// got the path if we want it
-	fmt.Println("SHORTEST PATH oRIGINAL", shortest_without_cheating)
+	shortest_without_cheating, path := FindShortestPathInGridDefault(sr, sc, er, ec, &grid, [2]int{})
 
-	seen := make(map[[4]int]int)
-
-	const TARGET = 34 // 84 - 50
-
-	for r := range len(grid) - 1 {
-		if r == 0 {
-			continue
-		}
-		for c := range len(grid) - 1 {
-			if c == 0 {
-				continue
-			}
-			results := FindShortestPathsInGridWithLongCheats(sr, sc, er, ec, &grid, [2]int{c, r}, TARGET)
-			for _, res := range results {
-				_steps, _er, _ec := res[0], res[1], res[2]
-				_val := [4]int{r, c, _er, _ec}
-				if _, exists := seen[_val]; exists {
-					continue
-				}
-				diff := shortest_without_cheating - _steps
-				if diff >= 50 {
-					fmt.Printf("(%v, %v) | (%v, %v) -> %v\n", r, c, _er, _ec, diff)
-				}
-				seen[_val] = diff
-			}
-		}
+	distOnPathToEndMap := make(map[[2]int]int)
+	for steps, point := range path {
+		distOnPathToEndMap[point] = shortest_without_cheating - steps
 	}
 
-	var total int
-	for _, value := range seen {
-		if value > 50 {
-			total++
+	const CHEAT_RANGE = 20
+	pointsInRange := func(r1, c1 int) [][3]int {
+		var points_in_range [][3]int
+		for i := -CHEAT_RANGE; i <= CHEAT_RANGE; i++ {
+			for j := -CHEAT_RANGE; j <= CHEAT_RANGE; j++ {
+				mDist := math.Abs(float64(i)) + math.Abs(float64(j))
+				if mDist <= float64(CHEAT_RANGE) {
+					points_in_range = append(points_in_range, [3]int{r1 + i, c1 + j, int(mDist)})
+				}
+			}
 		}
+		return points_in_range
 	}
 
-	return fmt.Sprintf("%d", total)
+	// for each bit of path, find all the points we can reach with cheats,
+	// if that's a point on the path, we can add current steps to steps to end
+
+	path_length := 0
+	var total_saved_by_at_least_goal int
+	for _, point := range path {
+		sr, sc := point[0], point[1]
+		points_in_range := pointsInRange(sr, sc)
+		for _, point := range points_in_range {
+			_point, cheat_dist := [2]int{point[0], point[1]}, point[2]
+			if dist_to_end, exists := distOnPathToEndMap[_point]; exists {
+				diff := shortest_without_cheating - (path_length + cheat_dist + dist_to_end)
+				if diff >= save_goal {
+					total_saved_by_at_least_goal++
+				}
+			}
+		}
+		path_length++
+	}
+
+	return fmt.Sprintf("%d", total_saved_by_at_least_goal)
 }
