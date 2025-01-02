@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func day21(part2 bool) Solution {
 	example_filepath := GetExamplePath(21)
+	input_filepath := GetInputPath(21)
 	if !part2 {
 		example_p1 := SolveDay21(example_filepath, false)
 		return Solution{
 			"21",
 			example_p1,
-			"input part 1",
+			SolveDay21(input_filepath, false),
 		}
 	} else {
 		return Solution{
@@ -120,15 +122,6 @@ func SolveDay21(filepath string, part2 bool) string {
 	DirPad_DOWN = KeyNode{DOWN, &DirPad_UP, &DirPad_RIGHT, nil, &DirPad_LEFT}
 	DirPad_RIGHT = KeyNode{RIGHT, &DirPad_A, nil, nil, &DirPad_DOWN}
 
-	// targetToKeypad := map[string]*KeyNode{
-	// 	A_PRESS: &KeyPad_A, "0": &KeyPad_0, "1": &KeyPad_1, "2": &KeyPad_2,
-	// 	"3": &KeyPad_3, "4": &KeyPad_4, "5": &KeyPad_5, "6": &KeyPad_6,
-	// 	"7": &KeyPad_7, "8": &KeyPad_8, "9": &KeyPad_9,
-	// }
-	// targetToDirpad := map[string]*KeyNode{
-	// 	"A": &DirPad_A, UP: &DirPad_UP, RIGHT: &DirPad_RIGHT, DOWN: &DirPad_DOWN, LEFT: &DirPad_LEFT,
-	// }
-
 	raw_input := readInput(filepath)
 
 	var answer int
@@ -139,22 +132,98 @@ func SolveDay21(filepath string, part2 bool) string {
 			panic("trouble parsing value of instruction")
 		}
 		// FIRST, HUMAN LAYER:
-		first_path_string := ShortestPathOnPad(&KeyPad_A, instruction)
-		fmt.Println(first_path_string)
+		first_shortest_paths := ShortestPathsOnPad(&KeyPad_A, instruction)
 
 		// SECOND, ROBOT1 -> ROBOT2
-		second_path_string := ShortestPathOnPad(&DirPad_A, first_path_string)
-		fmt.Println(second_path_string)
+		var second_shortest_paths []string
+		for _, first_path := range first_shortest_paths {
+			second_shortest_paths = append(second_shortest_paths, ShortestPathsOnPad(&DirPad_A, first_path)...)
+		}
 
+		/*
+			infeasible to find ALL SHORTEST PATHS on this final search.
+			so instead I think going to be necessary to just find a single shortest path on this last go, which I guess is obvious
+		*/
+
+		finalChan := make(chan string)
+		var wg sync.WaitGroup
 		// THIRD, ROBOT2 -> ROBOT3
-		third_path_string := ShortestPathOnPad(&DirPad_A, second_path_string)
-		fmt.Println(third_path_string)
+		for _, second_path := range second_shortest_paths {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				finalChan <- ShortestPathOnPad(&DirPad_A, second_path)
+			}()
+		}
 
-		fmt.Println(len(third_path_string), value)
-		answer += value * len(third_path_string)
+		go func() {
+			wg.Wait()
+			close(finalChan)
+		}()
+
+		var shortest_path int = 999999999999
+		for shortest_path_string := range finalChan {
+			shortest_path = min(shortest_path, len(shortest_path_string))
+		}
+
+		fmt.Println(shortest_path, value)
+		answer += value * shortest_path
 	}
 
 	return fmt.Sprintf("%v", answer)
+}
+
+func ShortestPathsOnPad(starting_node *KeyNode, instruction string) []string {
+	targets := strings.Split(instruction, "")
+
+	type Path struct {
+		node       *KeyNode
+		path       string
+		target_idx int
+	}
+	final_target_idx := len(targets) - 1
+
+	var shortest_paths []string
+	queue := []Path{{starting_node, "", 0}}
+	seen_paths := make(map[string]bool)
+	for len(queue) > 0 {
+		curr := queue[0]
+		queue = queue[1:]
+
+		for _, edge := range curr.node.Adjacents() {
+			new_path_str := curr.path + edge.direction
+			if _, seen := seen_paths[new_path_str]; seen {
+				continue
+			}
+			seen_paths[new_path_str] = true
+			next := Path{edge.adjacent_node, new_path_str, curr.target_idx}
+			if next.node.val == targets[curr.target_idx] {
+				next.target_idx++
+				next.path += A_PRESS
+				if curr.target_idx == final_target_idx {
+					// done
+					if len(shortest_paths) == 0 {
+						shortest_paths = append(shortest_paths, next.path)
+						continue
+					}
+					if len(shortest_paths[0]) == len(next.path) {
+						shortest_paths = append(shortest_paths, next.path)
+						continue
+					} else {
+						return shortest_paths
+					}
+				}
+				// jump the queue
+				new_queue := []Path{next}
+				new_queue = append(new_queue, queue...)
+				queue = new_queue
+			} else {
+				queue = append(queue, next)
+			}
+		}
+	}
+
+	return shortest_paths
 }
 
 func ShortestPathOnPad(starting_node *KeyNode, instruction string) string {
