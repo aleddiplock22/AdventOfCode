@@ -122,9 +122,10 @@ func FindShortestPathInGridDefault(sr, sc, er, ec int, grid *[][]string, cheat_p
 	return -1, [][2]int{}
 }
 
-func FindShortestPathInGridWithLongCheats(sr, sc, er, ec int, grid *[][]string, cheat_start [2]int) (steps, cheat_end_r, cheat_end_cint int) {
+func FindShortestPathsInGridWithLongCheats(sr, sc, er, ec int, grid *[][]string, cheat_start [2]int, target int) (results [][3]int) {
 	queue := [][6]int{{sr, sc, 0, 20, -1, -1}} // start_r, start_c, steps, cheat_steps_remaining, cheat_end_r, cheat_end_c
 	seen := map[[2]int]bool{{sr, sc}: true}
+	seen2 := make(map[[2]int]bool)
 	for len(queue) > 0 {
 		pos := queue[0]
 		queue = queue[1:]
@@ -137,9 +138,9 @@ func FindShortestPathInGridWithLongCheats(sr, sc, er, ec int, grid *[][]string, 
 			if nr < 0 || nr >= len(*grid) || nc < 0 || nc >= len((*grid)[0]) {
 				continue
 			}
-			if _, exists := seen[_loc]; exists {
-				continue
-			}
+			// if _, exists := seen[_loc]; exists {
+			// 	continue
+			// }
 
 			n_cheat_end_r := cheat_end_r
 			n_cheat_end_c := cheat_end_c
@@ -165,13 +166,24 @@ func FindShortestPathInGridWithLongCheats(sr, sc, er, ec int, grid *[][]string, 
 			}
 			if nr == er && nc == ec {
 				// fmt.Printf("END IN %v steps WITH %v cheat_duration left! (cheat_start=%v)\n", steps+1, n_cheat_duration, cheat_start)
-				return steps + 1, n_cheat_end_r, n_cheat_end_c
+				if _, exists := seen2[[2]int{n_cheat_end_r, n_cheat_end_c}]; exists {
+					continue
+				}
+				seen2[[2]int{n_cheat_end_r, n_cheat_end_c}] = true
+				if steps+1 <= target {
+					fmt.Println("Found result:", steps+1, n_cheat_end_r, n_cheat_end_c)
+					results = append(results, [3]int{steps + 1, n_cheat_end_r, n_cheat_end_c})
+				} else {
+					fmt.Println("returning")
+					return results
+				}
+			} else {
+				seen[_loc] = true
+				queue = append(queue, [6]int{nr, nc, steps + 1, n_cheat_duration, n_cheat_end_r, n_cheat_end_c})
 			}
-			seen[_loc] = true
-			queue = append(queue, [6]int{nr, nc, steps + 1, n_cheat_duration, n_cheat_end_r, n_cheat_end_c})
 		}
 	}
-	return -1, -1, -1
+	return results
 }
 
 func Part2_20(filepath string) string {
@@ -190,6 +202,10 @@ func Part2_20(filepath string) string {
 	// got the path if we want it
 	fmt.Println("SHORTEST PATH oRIGINAL", shortest_without_cheating)
 
+	seen := make(map[[4]int]int)
+
+	const TARGET = 34 // 84 - 50
+
 	for r := range len(grid) - 1 {
 		if r == 0 {
 			continue
@@ -198,15 +214,28 @@ func Part2_20(filepath string) string {
 			if c == 0 {
 				continue
 			}
-			_steps, _, _ := FindShortestPathInGridWithLongCheats(sr, sc, er, ec, &grid, [2]int{c, r})
-			diff := shortest_without_cheating - _steps
-			if diff >= 50 {
-				fmt.Printf("(%v, %v) -> %v\n", r, c, diff)
+			results := FindShortestPathsInGridWithLongCheats(sr, sc, er, ec, &grid, [2]int{c, r}, TARGET)
+			for _, res := range results {
+				_steps, _er, _ec := res[0], res[1], res[2]
+				_val := [4]int{r, c, _er, _ec}
+				if _, exists := seen[_val]; exists {
+					continue
+				}
+				diff := shortest_without_cheating - _steps
+				if diff >= 50 {
+					fmt.Printf("(%v, %v) | (%v, %v) -> %v\n", r, c, _er, _ec, diff)
+				}
+				seen[_val] = diff
 			}
 		}
 	}
 
 	var total int
+	for _, value := range seen {
+		if value > 50 {
+			total++
+		}
+	}
 
 	return fmt.Sprintf("%d", total)
 }
