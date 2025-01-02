@@ -77,6 +77,8 @@ func (node KeyNode) Adjacents() []KeyEdge {
 	if node.left != nil {
 		adjacents = append(adjacents, KeyEdge{node.left, LEFT})
 	}
+	// add adjacency to itself ( no move )
+	adjacents = append(adjacents, KeyEdge{&node, ""})
 	return adjacents
 }
 
@@ -130,20 +132,26 @@ func SolveDay21(filepath string, part2 bool) string {
 	raw_input := readInput(filepath)
 
 	var answer int
-	for _, instruction := range strings.Split(raw_input, "\r\n")[:1] {
+	for _, instruction := range strings.Split(raw_input, "\r\n") {
 		value_str := instruction[:len(instruction)-1]
 		value, err := strconv.Atoi(value_str)
 		if err != nil {
 			panic("trouble parsing value of instruction")
 		}
-
-		var length_of_shortest_sequence int
-
-		// FIRST LAYER:
+		// FIRST, HUMAN LAYER:
 		first_path_string := ShortestPathOnPad(&KeyPad_A, instruction)
 		fmt.Println(first_path_string)
 
-		answer += value * length_of_shortest_sequence
+		// SECOND, ROBOT1 -> ROBOT2
+		second_path_string := ShortestPathOnPad(&DirPad_A, first_path_string)
+		fmt.Println(second_path_string)
+
+		// THIRD, ROBOT2 -> ROBOT3
+		third_path_string := ShortestPathOnPad(&DirPad_A, second_path_string)
+		fmt.Println(third_path_string)
+
+		fmt.Println(len(third_path_string), value)
+		answer += value * len(third_path_string)
 	}
 
 	return fmt.Sprintf("%v", answer)
@@ -178,9 +186,10 @@ func ShortestPathOnPad(starting_node *KeyNode, instruction string) string {
 				}
 				// clear queue & seen
 				queue = []Path{next}
-				seen = map[string]bool{next.node.val: true}
+				seen = map[string]bool{}
 				// move to next target
 				targets = targets[1:]
+				break
 			} else {
 				queue = append(queue, next)
 			}
