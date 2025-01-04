@@ -8,19 +8,19 @@ import (
 
 func day21(part2 bool) Solution {
 	example_filepath := GetExamplePath(21)
-	// input_filepath := GetInputPath(21)
+	input_filepath := GetInputPath(21)
 	if !part2 {
 		example_p1 := SolveKeypadConundrum(example_filepath, 2)
 		return Solution{
 			"21",
 			example_p1,
-			"", //Part1_21(input_filepath),
+			SolveKeypadConundrum(input_filepath, 2),
 		}
 	} else {
 		return Solution{
 			"21",
-			"", // SolveKeypadConundrum(example_filepath, 25),
-			"input part 2",
+			SolveKeypadConundrum(example_filepath, 25),
+			SolveKeypadConundrum(input_filepath, 25),
 		}
 	}
 }
@@ -157,11 +157,6 @@ func SolveKeypadConundrum(filepath string, depth int) string {
 		}
 	}
 
-	// fmt.Println(pair_lengths)
-	// fmt.Println("")
-
-	// fmt.Println(pair_seqs)
-
 	ALL_KEYS_MAP := map[string]*KeyNode{
 		A_PRESS_KEYPAD: &KeyPad_A,
 		"0":            &KeyPad_0,
@@ -187,15 +182,31 @@ func SolveKeypadConundrum(filepath string, depth int) string {
 
 	var answer int
 	for _, instruction := range strings.Split(raw_input, "\r\n") {
-		fmt.Println("DOING INSTRUCTION", instruction)
 		value_str := instruction[:len(instruction)-1]
 		value, err := strconv.Atoi(value_str)
 		if err != nil {
 			panic("trouble parsing value of instruction")
 		}
 
-		min_len := computeBestLengthOfSequence(instruction, depth, ALL_KEYS_MAP, pair_lengths, pair_seqs, cache)
-		fmt.Println("MIN_LEN:", min_len)
+		var initial_inputs [][]string
+		instruction_A := A_PRESS_KEYPAD + instruction
+		split_instr := strings.Split(instruction, "")
+		split_instr_A := strings.Split(instruction_A, "")
+		for i := range split_instr_A[:len(split_instr_A)-1] {
+			initial_inputs = append(
+				initial_inputs,
+				pair_seqs[[2]string{split_instr_A[i], split_instr[i]}],
+			)
+		}
+
+		initial_inputs = CartesianProduct(initial_inputs...)
+
+		min_len := 99999999999999
+		for _, input := range initial_inputs {
+			seq := strings.ReplaceAll(strings.Join(input, ""), A_PRESS_KEYPAD, A_PRESS_DIRPAD)
+			_ans := computeBestLengthOfSequence(seq, depth, ALL_KEYS_MAP, pair_lengths, pair_seqs, cache)
+			min_len = min(min_len, _ans)
+		}
 		answer += value * min_len
 	}
 
@@ -203,36 +214,39 @@ func SolveKeypadConundrum(filepath string, depth int) string {
 }
 
 func computeBestLengthOfSequence(sequence string, depth int, key_map map[string]*KeyNode, pair_lengths map[[2]string]int, pair_seqs map[[2]string][]string, cache map[string]int) int {
-	if cached, exists := cache[sequence]; exists {
+	cacheKey := fmt.Sprintf("%v__%d", sequence, depth)
+	if cached, exists := cache[cacheKey]; exists {
 		return cached
 	}
 
-	A_seq := "A" + sequence
+	A_seq := A_PRESS_DIRPAD + sequence
+	split_seq := strings.Split(sequence, "")
 	if depth == 1 {
-		total := 0
-		for _, char := range strings.Split(A_seq, "") {
-			for _, char2 := range strings.Split(sequence, "") {
-				total += pair_lengths[[2]string{char, char2}]
-			}
+		var total int
+		for i, char := range strings.Split(A_seq[:len(A_seq)-1], "") {
+			char2 := split_seq[i] // i.e. the character after char in the sequence
+			total += pair_lengths[[2]string{char, char2}]
 		}
+		cache[cacheKey] = total
 		return total
 	}
 
 	// depth > 1 , we recurse
 	length := 0
-	for _, char := range strings.Split(A_seq, "") {
-		for _, char2 := range strings.Split(sequence, "") {
-			// min(compute_length(subseq, depth - 1) for subseq in pair_seqs[(x, y)])
-			optimal := 9999999999999999
-			if _, in_there := pair_seqs[[2]string{char, char2}]; !in_there {
-				panic("What")
-			}
-			for _, subseq := range pair_seqs[[2]string{char, char2}] {
-				optimal = min(optimal, computeBestLengthOfSequence(subseq, depth-1, key_map, pair_lengths, pair_seqs, cache))
-			}
-			length += optimal
+	for i, char := range strings.Split(A_seq[:len(A_seq)-1], "") {
+		char2 := split_seq[i]
+		optimal := 9999999999999999
+		subsequences, in_there := pair_seqs[[2]string{char, char2}]
+		if !in_there {
+			panic(fmt.Sprintf("Missing char=%v | char2=%v, from pair_seqs!", char, char2))
 		}
+		for _, subseq := range subsequences {
+			subseq_len := computeBestLengthOfSequence(subseq, depth-1, key_map, pair_lengths, pair_seqs, cache)
+			optimal = min(optimal, subseq_len)
+		}
+		length += optimal
 	}
+	cache[cacheKey] = length
 	return length
 }
 
@@ -277,4 +291,25 @@ func ShortestPathsOnPad(starting_node *KeyNode, target_node *KeyNode) []string {
 	}
 
 	return shortest_paths
+}
+
+func CartesianProduct(sets ...[]string) [][]string {
+	if len(sets) == 0 {
+		return nil
+	}
+
+	// Initialize the result with an empty slice
+	result := [][]string{{}}
+
+	for _, set := range sets {
+		var temp [][]string
+		for _, r := range result {
+			for _, s := range set {
+				temp = append(temp, append(append([]string{}, r...), s))
+			}
+		}
+		result = temp
+	}
+
+	return result
 }
