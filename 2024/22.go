@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 )
 
 func day22(part2 bool) Solution {
@@ -122,24 +123,43 @@ func Part2_22(filepath string) string {
 		portfolios = append(portfolios, BuildMonkeyPortfolio(number))
 	}
 
-	// brute force?
+	// brute force works! thank god. Will just optimise with go routines then.
+	// 14.5s before concurrency, 3.9s after. Good enough!
+
+	var wg sync.WaitGroup
+	bananaChan := make(chan int)
+
 	var maximum_banans int
-	seen := make(map[[4]int]bool)
+
+	var seenMap sync.Map
 	for i, portfolio := range portfolios {
-		for sequence, value := range portfolio {
-			if _, done := seen[sequence]; done {
-				continue
-			}
-			seen[sequence] = true
-			_sum := value
-			for j, cmp_portfolio := range portfolios {
-				if i == j {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for sequence, value := range portfolio {
+				if _, done := seenMap.Load(sequence); done {
 					continue
 				}
-				_sum += cmp_portfolio[sequence]
+				seenMap.Store(sequence, true)
+				_sum := value
+				for j, cmp_portfolio := range portfolios {
+					if i == j {
+						continue
+					}
+					_sum += cmp_portfolio[sequence]
+				}
+				bananaChan <- _sum
 			}
-			maximum_banans = max(maximum_banans, _sum)
-		}
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		close(bananaChan)
+	}()
+
+	for bananaTotal := range bananaChan {
+		maximum_banans = max(maximum_banans, bananaTotal)
 	}
 
 	return fmt.Sprintf("%d", maximum_banans)
